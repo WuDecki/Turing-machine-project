@@ -1,51 +1,29 @@
 package model;
 
-import java.util.List;
-
 public class TuringMachine {
 
-    Pommel pommel;
-    Ribbon ribbon;
-    TuringMachineProgram program;
+    private Pommel pommel;
+    private Ribbon ribbon;
+    private TuringMachineProgram program;
+    private State actualState;
 
     public void loadProgram(TuringMachineProgram program) {
         this.program = program;
-
+        this.actualState = null;
     }
 
-    public void loadTapeToRibbon(Character[] tape) throws TuringMachineException {
-        if (program == null)
-            throw new TuringMachineException("A tape cannot be load before program");
-
+    public TuringMachineResponse startProgram(Character[] tape) throws TuringMachineException {
         checkTapeSymbols(tape);
         ribbon = new Ribbon(tape);
         configurePommel();
+        actualState = program.getFirstState();
+        return executeActualState();
     }
 
     private void checkTapeSymbols(Character[] tape) throws TuringMachineException {
-        if (!symbolsAreCorrect(tape))
-            throw new  TuringMachineException("A tape includes incorrect symbols for loaded program");
-    }
-
-    private boolean symbolsAreCorrect(Character[] tape) {
-        List<Character> symbols = program.getSymbols();
-        for (Character character: tape) {
-            if (!symbolIsCorrect(symbols, character)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean symbolIsCorrect(List<Character> symbols, Character character) {
-        for (Character symbol: symbols) {
-            if (symbol.equals(character)) {
-                return true;
-            }
-        }
-
-        return false;
+        TapeValidator tapeValidator = new TapeValidator(program, tape);
+        if (!tapeValidator.isValid())
+            throw new TuringMachineException("A tape includes incorrect symbols for loaded program");
     }
 
     private void configurePommel() throws TuringMachineException {
@@ -70,31 +48,29 @@ public class TuringMachine {
         return -1;
     }
 
-    public void startProgram() {
-        executeNextState();
-    }
-
-    private void executeNextState() {
+    private TuringMachineResponse executeActualState() {
         StateType actualStateType = getActualStateType();
 
-        if (actualStateType == StateType.ACCEPTABLE || actualStateType == StateType.REJECTABLE) {
-            return;
+        if (actualStateType == StateType.ACCEPTABLE) {
+            return TuringMachineResponse.ACCEPT;
+        } else if (actualStateType == StateType.REJECTABLE) {
+            return TuringMachineResponse.REJECT;
         } else {
             Character actualCharacter = pommel.readCharacter(ribbon);
-            Operation operation = program.executeAndGetOperation(actualCharacter);
-            processOperation(operation);
-            executeNextState();
+            Operation operation = actualState.getOperation(actualCharacter);
+            actualState = processOperation(operation);
+            return executeActualState();
         }
     }
 
     private StateType getActualStateType() {
-        State actualState = program.getActualState();
         return actualState.getType();
     }
 
-    private void processOperation(Operation operation) {
+    private State processOperation(Operation operation) {
         pommel.writeCharacter(ribbon, operation.getNewChar());
         pommel.move(operation.getMovement());
+        return operation.getNextState();
     }
 
     public Character[] getRibbonTape() {

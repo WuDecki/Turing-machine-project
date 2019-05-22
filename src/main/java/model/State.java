@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class State {
 
-    StateType type;
-    Map<Character, Operation> operations;
+    private StateType type;
+    private Map<Character, Operation> operations;
 
     public State(StateType type) {
         this.type = type;

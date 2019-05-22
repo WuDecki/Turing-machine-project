@@ -4,17 +4,17 @@ import java.util.List;
 
 public class TuringMachineProgram {
 
-    List<Character> symbols;
-    List<State> states;
-    State firstState;
-    State actualState;
-    PommelStartPosition startPosition;
+    private List<Character> symbols;
+    private Character movementCharacter;
+    private List<State> states;
+    private State firstState;
+    private PommelStartPosition startPosition;
 
-    public TuringMachineProgram(List<Character> symbols, List<State> states, State firstState, PommelStartPosition startPosition) {
+    public TuringMachineProgram(List<Character> symbols, Character movementCharacter, List<State> states, State firstState, PommelStartPosition startPosition) {
         this.symbols = symbols;
+        this.movementCharacter = movementCharacter;
         this.states = states;
         this.firstState = firstState;
-        this.actualState = firstState;
         this.startPosition = startPosition;
     }
 
@@ -22,29 +22,16 @@ public class TuringMachineProgram {
         return symbols;
     }
 
-    public State getFirstState() {
-        return firstState;
+    public Character getMovementCharacter() {
+        return movementCharacter;
     }
 
-    public List<State> getStates() {
-        return states;
+    public State getFirstState() {
+        return firstState;
     }
 
     public PommelStartPosition getStartPosition() {
         return startPosition;
     }
 
-    public Operation executeAndGetOperation(Character character) {
-        Operation operation = actualState.getOperation(character);
-        actualState = operation.getNextState();
-        return operation;
-    }
-
-    public State getActualState() {
-        return actualState;
-    }
-
-    public void setActualState(State actualState) {
-        this.actualState = actualState;
-    }
 }

@@ -2,9 +2,9 @@ package model;
 
 public class Operation {
 
-    Character newChar;
-    PommelMovement movement;
-    State nextState;
+    private Character newChar;
+    private PommelMovement movement;
+    private State nextState;
 
     public Operation(Character newChar, PommelMovement movement, State nextState) {
         this.newChar = newChar;

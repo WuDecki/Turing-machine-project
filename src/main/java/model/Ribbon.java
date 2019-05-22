@@ -2,8 +2,8 @@ package model;
 
 public class Ribbon {
 
-    final static Character EMPTY_CHARACTER = 0;
-    Character[] tape;
+    private final static Character EMPTY_CHARACTER = 0;
+    private Character[] tape;
 
     public Ribbon(Character[] tape) {
         this.tape = tape;
@@ -33,7 +33,4 @@ public class Ribbon {
         tape[position] = character;
     }
 
-    public void clearCharacterAtPosition(Integer position) {
-        setCharacterAtPosition(EMPTY_CHARACTER, position);
-    }
 }

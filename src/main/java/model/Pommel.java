@@ -2,15 +2,10 @@ package model;
 
 public class Pommel {
 
-    Integer startPosition;
-    Integer actualPosition;
+    private Integer actualPosition;
 
     public Pommel(Integer pommelPosition) {
-        this.startPosition = pommelPosition;
-    }
-
-    public void resetPommelPosition() {
-        actualPosition = startPosition;
+        this.actualPosition = pommelPosition;
     }
 
     public Character readCharacter(Ribbon ribbon) {
