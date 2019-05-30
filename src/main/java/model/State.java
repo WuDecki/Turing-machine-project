@@ -5,11 +5,15 @@ import java.util.Map;
 
 public class State {
 
-    private StateType type;
-    private Map<Character, Operation> operations;
+    private static int COUNT = 0;
 
-    public State(StateType type) {
+    private final int id;
+    private final StateType type;
+    private final Map<Character, Operation> operations;
+
+    public State(final StateType type) {
         this.type = type;
+        id = COUNT++;
         operations = new HashMap<>();
     }
 
@@ -17,11 +21,24 @@ public class State {
         return type;
     }
 
-    public void addOperation(Character character, Operation operation) {
+    public void addOperation(final Character character, final Operation operation) {
         operations.put(character, operation);
     }
 
-    public Operation getOperation(Character character) {
+    public Operation getOperation(final Character character) {
         return operations.get(character);
+    }
+
+    public Map<Character, Operation> getOperations() {
+        return operations;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "S" + id;
     }
 }

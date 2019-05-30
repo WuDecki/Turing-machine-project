@@ -6,7 +6,7 @@ public class Operation {
     private PommelMovement movement;
     private State nextState;
 
-    public Operation(Character newChar, PommelMovement movement, State nextState) {
+    public Operation(final Character newChar, final PommelMovement movement, final State nextState) {
         this.newChar = newChar;
         this.movement = movement;
         this.nextState = nextState;
@@ -22,5 +22,22 @@ public class Operation {
 
     public State getNextState() {
         return nextState;
+    }
+
+    public void setNewChar(final Character newChar) {
+        this.newChar = newChar;
+    }
+
+    public void setMovement(final PommelMovement movement) {
+        this.movement = movement;
+    }
+
+    public void setNextState(final State nextState) {
+        this.nextState = nextState;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("S%s\n%c %c", getNextState().getId(), getNewChar(), getMovement().equals(PommelMovement.NONE) ? '-' : getMovement().name().charAt(0));
     }
 }

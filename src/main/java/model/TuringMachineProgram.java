@@ -4,13 +4,13 @@ import java.util.List;
 
 public class TuringMachineProgram {
 
-    private List<Character> symbols;
-    private Character movementCharacter;
-    private List<State> states;
-    private State firstState;
-    private PommelStartPosition startPosition;
+    private final List<Character> symbols;
+    private final Character movementCharacter;
+    private final List<State> states;
+    private final State firstState;
+    private final PommelStartPosition startPosition;
 
-    public TuringMachineProgram(List<Character> symbols, Character movementCharacter, List<State> states, State firstState, PommelStartPosition startPosition) {
+    public TuringMachineProgram(final List<Character> symbols, final Character movementCharacter, final List<State> states, final State firstState, final PommelStartPosition startPosition) {
         this.symbols = symbols;
         this.movementCharacter = movementCharacter;
         this.states = states;
@@ -34,4 +34,7 @@ public class TuringMachineProgram {
         return startPosition;
     }
 
+    public List<State> getStates() {
+        return states;
+    }
 }

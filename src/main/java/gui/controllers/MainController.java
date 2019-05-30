@@ -1,56 +1,16 @@
-import gui.configuration.Config;
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import jfxtras.styles.jmetro8.JMetro;
+package gui.controllers;
+
+import gui.components.TuringGrid;
+import javafx.fxml.FXML;
 import model.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class Main extends Application {
+public class MainController extends AbstractController {
 
-    public static void main(final String[] args) {
-        Application.launch(args);
-    }
-
-    private static void applyTheme(final Parent root) {
-        new JMetro(JMetro.Style.LIGHT).applyTheme(root);
-    }
-
-    public static void main2(final String[] args) {
-        final TuringMachineProgram program = prepareProgram();
-        final TuringMachine machine = new TuringMachine();
-        machine.loadProgram(program);
-        final Character[] tape = prepareTape("abcccbba$");
-        try {
-            final TuringMachineResponse response = machine.startProgram(tape);
-            System.out.println(response.toString());
-        } catch (final TuringMachineException e) {
-            e.printStackTrace();
-        }
-        System.out.println(Arrays.toString(machine.getRibbonTape()));
-    }
-
-    private static TuringMachineProgram prepareProgram() {
-        final List<Character> symbols = prepareSymbols();
-        final List<State> states = prepareStates();
-
-        return new TuringMachineProgram(symbols, '$', states, states.get(0), PommelStartPosition.BEGINNING);
-    }
-
-    private static List<Character> prepareSymbols() {
-        final List<Character> symbols = new ArrayList<>();
-        symbols.add('a');
-        symbols.add('b');
-        symbols.add('c');
-        symbols.add('$');
-
-        return symbols;
-    }
+    @FXML
+    public TuringGrid grid;
 
     private static List<State> prepareStates() {
         final List<State> states = new ArrayList<>();
@@ -119,29 +79,26 @@ public class Main extends Application {
         return states;
     }
 
-    private static Character[] prepareTape(final String text) {
-        final List<Character> characters = new ArrayList<>();
+    private static TuringMachineProgram prepareProgram() {
+        final List<Character> symbols = prepareSymbols();
+        final List<State> states = prepareStates();
 
-        for (final char character : text.toCharArray()) {
-            characters.add(character);
-        }
-
-        return characters.toArray(new Character[0]);
+        return new TuringMachineProgram(symbols, '$', states, states.get(0), PommelStartPosition.BEGINNING);
     }
 
-    @Override
-    public void start(final Stage primaryStage) throws Exception {
-        final Parent root = FXMLLoader.load(Main.class.getResource(Config.Views.MAIN));
-        configurePrimaryStageAndRoot(primaryStage, root);
-//        applyTheme(root);
+    private static List<Character> prepareSymbols() {
+        final List<Character> symbols = new ArrayList<>();
+        symbols.add('a');
+        symbols.add('b');
+        symbols.add('c');
+        symbols.add('$');
 
-        primaryStage.show();
+        return symbols;
     }
 
-    private void configurePrimaryStageAndRoot(final Stage primaryStage, final Parent root) {
-        primaryStage.setTitle(Config.App.NAME);
-        primaryStage.setScene(
-                new Scene(root)
-        );
+    public void initialize() {
+        final TuringMachineProgram program = prepareProgram();
+        grid.initialize(program);
     }
+
 }
