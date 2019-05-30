@@ -4,8 +4,10 @@ import gui.components.TuringGrid;
 import javafx.fxml.FXML;
 import model.*;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class MainController extends AbstractController {
 
@@ -96,9 +98,25 @@ public class MainController extends AbstractController {
         return symbols;
     }
 
-    public void initialize() {
-        final TuringMachineProgram program = prepareProgram();
-        grid.initialize(program);
+    private TuringMachineProgram prepareDefaultTuringProgram() {
+        final List<Character> symbols = new ArrayList<>();
+        symbols.add('$');
+
+//        State state0 = new State();
+
+        final List<State> states = new ArrayList<>();
+
+        return null;
+//        return new TuringMachineProgram(symbols, '$', states, states.get(0), PommelStartPosition.BEGINNING);
     }
 
+    @Override
+    public void initialize(final URL location, final ResourceBundle resources) {
+        final TuringMachineProgram program = prepareProgram();
+        grid.initialize(program);
+
+//        final Label emptyGridMessage = new Label("First, please initialize");
+
+//        grid.add(emptyGridMessage, 0, 0);
+    }
 }

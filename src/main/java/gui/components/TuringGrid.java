@@ -1,6 +1,5 @@
 package gui.components;
 
-import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.FontWeight;
 import model.State;
@@ -19,18 +18,19 @@ public class TuringGrid extends GridPane {
 
     public TuringGrid() {
         super();
-
-        setGridLinesVisible(true);
     }
 
     public void initialize(final TuringMachineProgram program) {
         this.program = program;
+        getChildren().clear();
+        setGridLinesVisible(true);
 
-        addColumn(0, getRowsHeaders(program.getSymbols()));
-
+        addRowsHeaders(program.getSymbols());
         for (final State state : program.getStates()) {
             addStateColumn(state, program.getSymbols().size());
         }
+
+        getChildren().stream().map(TuringGridCell.class::cast).forEach(cell -> cell.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE));
     }
 
     private void addStateColumn(final State state, final int columnSize) {
@@ -55,14 +55,14 @@ public class TuringGrid extends GridPane {
         addColumn(state.getId() + 1, cells.toArray(new TuringGridCell[0]));
     }
 
-    private Label[] getRowsHeaders(final List<Character> symbols) {
+    private void addRowsHeaders(final List<Character> symbols) {
         final List<TuringGridCell> headers = symbols.stream()
                 .map(character -> new TuringGridCell(character.toString(), null, FontWeight.BOLD))
                 .collect(Collectors.toList());
 
         headers.add(0, new TuringGridCell(""));
 
-        return headers.toArray(new TuringGridCell[0]);
+        addColumn(0, headers.toArray(new TuringGridCell[0]));
     }
 
 }

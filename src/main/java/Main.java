@@ -133,15 +133,16 @@ public class Main extends Application {
     public void start(final Stage primaryStage) throws Exception {
         final Parent root = FXMLLoader.load(Main.class.getResource(Config.Views.MAIN));
         configurePrimaryStageAndRoot(primaryStage, root);
-//        applyTheme(root);
+        applyTheme(root);
 
         primaryStage.show();
     }
 
     private void configurePrimaryStageAndRoot(final Stage primaryStage, final Parent root) {
         primaryStage.setTitle(Config.App.NAME);
-        primaryStage.setScene(
-                new Scene(root)
-        );
+        final Scene scene = new Scene(root);
+        scene.getStylesheets().add(Main.class.getResource(Config.Styles.MAIN).toExternalForm());
+
+        primaryStage.setScene(scene);
     }
 }

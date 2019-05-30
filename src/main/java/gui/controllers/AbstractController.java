@@ -1,4 +1,6 @@
 package gui.controllers;
 
-public class AbstractController {
+import javafx.fxml.Initializable;
+
+public abstract class AbstractController implements Initializable {
 }

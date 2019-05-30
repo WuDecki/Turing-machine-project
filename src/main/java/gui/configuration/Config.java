@@ -12,4 +12,8 @@ public interface Config {
     interface Nodes {
         String TURING_GRID_CELL_EDITOR = "/nodes/turing-grid-cell-editor.fxml";
     }
+
+    interface Styles {
+        String MAIN = "/style.css";
+    }
 }
