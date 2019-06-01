@@ -17,7 +17,7 @@ public class JsonToProgramConverter {
         this.jsonObject = jsonObject;
     }
 
-    public TuringMachineProgram convert() throws JSONException {
+    public TuringMachineProgram convert() throws JSONException, InvalidConversionException {
         definition = new TuringMachineDefinition();
         convertSymbols();
         convertStates();
@@ -38,7 +38,7 @@ public class JsonToProgramConverter {
         definition.setSymbols(symbols);
     }
 
-    private void convertStates() throws JSONException {
+    private void convertStates() throws JSONException, InvalidConversionException {
         List<String> statesIdn = extractList(jsonObject.getJSONArray("states"));
         JSONObject program = jsonObject.getJSONObject("program");
         definition.setStates(createStates(statesIdn, program));
@@ -61,14 +61,14 @@ public class JsonToProgramConverter {
         return states;
     }
 
-    private void prepareOperations(State state, Object rawState) throws JSONException {
+    private void prepareOperations(State state, Object rawState) throws JSONException, InvalidConversionException {
         if (!state.getType().equals(StateType.NORMAL))
             return;
 
         for (Character symbol: definition.getSymbols()) {
             JSONArray array = ((JSONObject)rawState).getJSONArray(symbol.toString());
             Character newCharacter = array.getString(0).charAt(0);
-            PommelMovement movement =getPommelMovement(array.getString(1));
+            PommelMovement movement = getPommelMovement(array.getString(1));
             String nextStateIdn = array.getString(2);
             State nextState = definition.getStateByIdn(nextStateIdn);
             Operation operation = new Operation(newCharacter, movement, nextState);
@@ -76,7 +76,7 @@ public class JsonToProgramConverter {
         }
     }
 
-    private PommelMovement getPommelMovement(String movementSymbol) {
+    private PommelMovement getPommelMovement(String movementSymbol) throws InvalidConversionException {
         switch (movementSymbol) {
             case "P": {
                 return PommelMovement.RIGHT;
@@ -87,12 +87,8 @@ public class JsonToProgramConverter {
             case "-": {
                 return PommelMovement.NONE;
             }
-            default: {
-                //TODO Dorobic wyjatek
-            }
+            default: throw new InvalidConversionException("Invalid pommel movement symbol");
         }
-
-        return null;
     }
 
     private StateType chooseStateType(Object rawState) {
@@ -128,19 +124,16 @@ public class JsonToProgramConverter {
         definition.setMovementCharacter(movementSymbol.charAt(0));
     }
 
-    private void convertPommelStartPosition() throws JSONException {
+    private void convertPommelStartPosition() throws JSONException, InvalidConversionException {
         String pommelStartPosition = jsonObject.getString("pommelStartPosition");
         definition.setPommelStartPosition(choosePommelStartPosition(pommelStartPosition));
     }
 
-    private PommelStartPosition choosePommelStartPosition(String pommelStartPosition) {
+    private PommelStartPosition choosePommelStartPosition(String pommelStartPosition) throws InvalidConversionException {
         switch (pommelStartPosition) {
             case "P": return PommelStartPosition.BEGINNING;
             case "K": return PommelStartPosition.END;
-            default: {
-                //TODO Dorobic wyjatek
-                return null;
-            }
+            default: throw new InvalidConversionException("Invalid pommel start position symbol");
         }
     }
 

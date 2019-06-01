@@ -13,7 +13,7 @@ public class ProgramToJsonConverter {
         this.program = program;
     }
 
-    public JSONObject convert() throws JSONException {
+    public JSONObject convert() throws JSONException, InvalidConversionException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("symbols", convertSymbols());
         jsonObject.put("movementSymbol", program.getMovementCharacter());
@@ -43,18 +43,15 @@ public class ProgramToJsonConverter {
         return jsonStates;
     }
 
-    private String convertPommelStartPosition() {
+    private String convertPommelStartPosition() throws InvalidConversionException {
         switch (program.getStartPosition()) {
             case BEGINNING: return "P";
             case END: return "K";
-            default: {
-                //TODO Wyrzucic wyjatek
-                return null;
-            }
+            default: throw new InvalidConversionException("Invalid pommel start position symbol");
         }
     }
 
-    private JSONObject convertProgram() throws JSONException {
+    private JSONObject convertProgram() throws JSONException, InvalidConversionException {
         JSONObject jsonProgram = new JSONObject();
         for (State state: program.getStates()) {
             jsonProgram.put(state.getIdn(), convertState(state));
@@ -63,7 +60,7 @@ public class ProgramToJsonConverter {
         return jsonProgram;
     }
 
-    private Object convertState(State state) throws JSONException {
+    private Object convertState(State state) throws JSONException, InvalidConversionException {
         JSONObject jsonState = new JSONObject();
 
         if (state.getType().equals(StateType.ACCEPTABLE))
@@ -78,7 +75,7 @@ public class ProgramToJsonConverter {
         return jsonState;
     }
 
-    private JSONArray convertOperation(Operation operation) {
+    private JSONArray convertOperation(Operation operation) throws InvalidConversionException {
         JSONArray jsonOperation = new JSONArray();
         jsonOperation.put(operation.getNewChar());
         jsonOperation.put(convertPommelMovement(operation.getMovement()));
@@ -87,15 +84,12 @@ public class ProgramToJsonConverter {
         return jsonOperation;
     }
 
-    private String convertPommelMovement(PommelMovement pommelMovement) {
+    private String convertPommelMovement(PommelMovement pommelMovement) throws InvalidConversionException {
         switch (pommelMovement) {
             case LEFT: return "L";
             case RIGHT: return "P";
             case NONE: return "-";
-            default: {
-                //TODO Wyrzucic wyjatek
-                return null;
-            }
+            default: throw new InvalidConversionException("Invalid pommel movement symbol");
         }
     }
 }
