@@ -1,11 +1,18 @@
 package model;
 
+import model.controllers.TuringMachineController;
+
 public class TuringMachine {
 
+    private TuringMachineController controller;
     private Pommel pommel;
     private Ribbon ribbon;
     private TuringMachineProgram program;
     private State actualState;
+
+    public TuringMachine(TuringMachineController controller) {
+        this.controller = controller;
+    }
 
     public void loadProgram(TuringMachineProgram program) {
         this.program = program;
@@ -57,7 +64,9 @@ public class TuringMachine {
             return TuringMachineResponse.REJECT;
         } else {
             Character actualCharacter = pommel.readCharacter(ribbon);
+            controller.onMakeDecision(actualState, actualCharacter);
             Operation operation = actualState.getOperation(actualCharacter);
+            controller.onChangeState(actualState, operation.getNextState());
             actualState = processOperation(operation);
             return executeActualState();
         }
