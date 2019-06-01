@@ -5,12 +5,18 @@ import java.util.Map;
 
 public class State {
 
+    private String idn;
     private StateType type;
     private Map<Character, Operation> operations;
 
-    public State(StateType type) {
+    public State(String idn, StateType type) {
+        this.idn = idn;
         this.type = type;
-        operations = new HashMap<>();
+        this.operations = new HashMap<>();
+    }
+
+    public String getIdn() {
+        return idn;
     }
 
     public StateType getType() {

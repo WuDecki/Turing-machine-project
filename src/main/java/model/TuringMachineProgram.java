@@ -26,6 +26,10 @@ public class TuringMachineProgram {
         return movementCharacter;
     }
 
+    public List<State> getStates() {
+        return states;
+    }
+
     public State getFirstState() {
         return firstState;
     }
