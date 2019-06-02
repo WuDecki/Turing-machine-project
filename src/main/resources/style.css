@@ -17,4 +17,5 @@ TuringGrid > TuringGridCell {
 
 TuringGrid > TuringGridCell.turing-grid-cell-editor-enabled {
     -fx-border-color: red;
+    -fx-background-color: #dcdcdc;
 }

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/turing-machine.iml" filepath="$PROJECT_DIR$/.idea/modules/turing-machine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/turing-machine.iml" filepath="$PROJECT_DIR$/.idea/modules/turing-machine.iml" group="turing-machine" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/turing-machine_main.iml" filepath="$PROJECT_DIR$/.idea/modules/turing-machine_main.iml" group="turing-machine" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/turing-machine_test.iml" filepath="$PROJECT_DIR$/.idea/modules/turing-machine_test.iml" group="turing-machine" />
     </modules>
