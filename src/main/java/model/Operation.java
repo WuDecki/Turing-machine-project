@@ -38,6 +38,6 @@ public class Operation {
 
     @Override
     public String toString() {
-        return String.format("S%s\n%c %c", getNextState().getId(), getNewChar(), getMovement().equals(PommelMovement.NONE) ? '-' : getMovement().name().charAt(0));
+        return String.format("%s\n%c %c", getNextState().getIdn(), getNewChar(), getMovement().equals(PommelMovement.NONE) ? '-' : getMovement().name().charAt(0));
     }
 }

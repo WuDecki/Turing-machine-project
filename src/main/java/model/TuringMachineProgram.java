@@ -37,8 +37,4 @@ public class TuringMachineProgram {
     public PommelStartPosition getStartPosition() {
         return startPosition;
     }
-
-    public List<State> getStates() {
-        return states;
-    }
 }

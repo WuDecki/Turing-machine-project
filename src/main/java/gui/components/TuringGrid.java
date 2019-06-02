@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class TuringGrid extends GridPane {
 
     private static final int STATE_TYPE_FONT_SIZE = 22;
-    private static final String STATE_ID_PREFIX = "S";
 
     private TuringMachineProgram program;
 
@@ -26,14 +25,17 @@ public class TuringGrid extends GridPane {
         setGridLinesVisible(true);
 
         addRowsHeaders(program.getSymbols());
-        for (final State state : program.getStates()) {
-            addStateColumn(state, program.getSymbols().size());
+
+        final List<State> states = program.getStates();
+        for (int i = 0, statesSize = states.size(); i < statesSize; i++) {
+            final State state = states.get(i);
+            addStateColumn(i, state, program.getSymbols().size());
         }
 
         getChildren().stream().map(TuringGridCell.class::cast).forEach(cell -> cell.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE));
     }
 
-    private void addStateColumn(final State state, final int columnSize) {
+    private void addStateColumn(final int columnIndex, final State state, final int columnSize) {
         List<TuringGridCell> cells = new ArrayList<>();
 
         if (state.getOperations().size() > 0) {
@@ -51,8 +53,8 @@ public class TuringGrid extends GridPane {
             }
         }
 
-        cells.add(0, new TuringGridCell(STATE_ID_PREFIX + state.getId(), null, FontWeight.BOLD));
-        addColumn(state.getId() + 1, cells.toArray(new TuringGridCell[0]));
+        cells.add(0, new TuringGridCell(state.getIdn(), null, FontWeight.BOLD));
+        addColumn(columnIndex + 1, cells.toArray(new TuringGridCell[0]));
     }
 
     private void addRowsHeaders(final List<Character> symbols) {

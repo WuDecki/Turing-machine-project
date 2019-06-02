@@ -16,16 +16,16 @@ public class MainController extends AbstractController {
 
     private static List<State> prepareStates() {
         final List<State> states = new ArrayList<>();
-        final State state0 = new State(StateType.NORMAL);
-        final State state1 = new State(StateType.NORMAL);
-        final State state2 = new State(StateType.NORMAL);
-        final State state3 = new State(StateType.NORMAL);
-        final State state4 = new State(StateType.NORMAL);
-        final State state5 = new State(StateType.NORMAL);
-        final State state6 = new State(StateType.NORMAL);
-        final State state7 = new State(StateType.NORMAL);
-        final State state8 = new State(StateType.ACCEPTABLE);
-        final State state9 = new State(StateType.REJECTABLE);
+        final State state0 = new State("S0", StateType.NORMAL);
+        final State state1 = new State("S1", StateType.NORMAL);
+        final State state2 = new State("S2", StateType.NORMAL);
+        final State state3 = new State("S3", StateType.NORMAL);
+        final State state4 = new State("S4", StateType.NORMAL);
+        final State state5 = new State("S5", StateType.NORMAL);
+        final State state6 = new State("S6", StateType.NORMAL);
+        final State state7 = new State("S7", StateType.NORMAL);
+        final State state8 = new State("S8", StateType.ACCEPTABLE);
+        final State state9 = new State("S9", StateType.REJECTABLE);
 
         state0.addOperation('a', new Operation('$', PommelMovement.RIGHT, state1));
         state0.addOperation('b', new Operation('$', PommelMovement.RIGHT, state4));
