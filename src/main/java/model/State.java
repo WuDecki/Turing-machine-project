@@ -5,16 +5,18 @@ import java.util.Map;
 
 public class State {
 
-    private static int COUNT = 0;
+    private String idn;
+    private StateType type;
+    private Map<Character, Operation> operations;
 
-    private final int id;
-    private final StateType type;
-    private final Map<Character, Operation> operations;
-
-    public State(final StateType type) {
+    public State(String idn, StateType type) {
+        this.idn = idn;
         this.type = type;
-        id = COUNT++;
-        operations = new HashMap<>();
+        this.operations = new HashMap<>();
+    }
+
+    public String getIdn() {
+        return idn;
     }
 
     public StateType getType() {
@@ -33,12 +35,8 @@ public class State {
         return operations;
     }
 
-    public int getId() {
-        return id;
-    }
-
     @Override
     public String toString() {
-        return "S" + id;
+        return idn;
     }
 }
