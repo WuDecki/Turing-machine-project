@@ -6,17 +6,21 @@ import java.util.Map;
 public class State {
 
     private String idn;
-    private StateType type;
-    private Map<Character, Operation> operations;
+    private final StateType type;
+    private final Map<Character, Operation> operations;
 
-    public State(String idn, StateType type) {
+    public State(final String idn, final StateType type) {
         this.idn = idn;
         this.type = type;
-        this.operations = new HashMap<>();
+        operations = new HashMap<>();
     }
 
     public String getIdn() {
         return idn;
+    }
+
+    public void setIdn(final String idn) {
+        this.idn = idn;
     }
 
     public StateType getType() {

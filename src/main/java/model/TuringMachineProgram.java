@@ -6,7 +6,7 @@ public class TuringMachineProgram {
 
     private final List<Character> symbols;
     private final Character movementCharacter;
-    private final List<State> states;
+    private List<State> states;
     private final State firstState;
     private final PommelStartPosition startPosition;
 
@@ -28,6 +28,10 @@ public class TuringMachineProgram {
 
     public List<State> getStates() {
         return states;
+    }
+
+    public void setStates(final List<State> states) {
+        this.states = states;
     }
 
     public State getFirstState() {

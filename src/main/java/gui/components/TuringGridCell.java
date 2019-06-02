@@ -10,7 +10,8 @@ import model.TuringMachineProgram;
 import org.controlsfx.control.PopOver;
 
 public class TuringGridCell extends Label {
-    public static final String STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED = "turing-grid-cell-editor-enabled";
+    private static final String STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED = "turing-grid-cell-editor-enabled";
+    private static final Insets DEFAULT_CELL_PADDING = new Insets(5, 10, 5, 10);
     private final Operation operation;
 
     public TuringGridCell(final String text, final Operation operation, final FontWeight fontWeight, final double fontSize, final Insets padding) {
@@ -23,19 +24,19 @@ public class TuringGridCell extends Label {
     }
 
     public TuringGridCell(final String text, final Operation operation, final FontWeight fontWeight, final double fontSize) {
-        this(text, operation, fontWeight, fontSize, new Insets(10, 15, 10, 15));
+        this(text, operation, fontWeight, fontSize, DEFAULT_CELL_PADDING);
     }
 
     public TuringGridCell(final String text, final Operation operation, final FontWeight fontWeight) {
-        this(text, operation, fontWeight, 16, new Insets(10, 15, 10, 15));
+        this(text, operation, fontWeight, 16, DEFAULT_CELL_PADDING);
     }
 
     public TuringGridCell(final String text, final Operation operation) {
-        this(text, operation, FontWeight.NORMAL, 16, new Insets(10, 15, 10, 15));
+        this(text, operation, FontWeight.NORMAL, 16, DEFAULT_CELL_PADDING);
     }
 
     public TuringGridCell(final String text) {
-        this(text, null, FontWeight.NORMAL, 16, new Insets(10, 15, 10, 15));
+        this(text, null, FontWeight.NORMAL, 16, DEFAULT_CELL_PADDING);
     }
 
     public void initOperationEditor(final TuringMachineProgram program) {
