@@ -13,3 +13,8 @@ TuringGrid > TuringGridCell {
     -fx-border-insets: 0;
     -fx-border-radius: 0;
 }
+
+
+TuringGrid > TuringGridCell.turing-grid-cell-editor-enabled {
+    -fx-border-color: red;
+}

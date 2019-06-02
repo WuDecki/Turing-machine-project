@@ -10,6 +10,7 @@ import model.TuringMachineProgram;
 import org.controlsfx.control.PopOver;
 
 public class TuringGridCell extends Label {
+    public static final String STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED = "turing-grid-cell-editor-enabled";
     private final Operation operation;
 
     public TuringGridCell(final String text, final Operation operation, final FontWeight fontWeight, final double fontSize, final Insets padding) {
@@ -18,7 +19,6 @@ public class TuringGridCell extends Label {
         setFont(Font.font(Font.getDefault().getFamily(), fontWeight, fontSize));
         setTextAlignment(TextAlignment.CENTER);
         setPadding(padding);
-
         this.operation = operation;
     }
 
@@ -54,9 +54,21 @@ public class TuringGridCell extends Label {
             operation.setNextState(editor.nextStateComboBox.getValue());
 
             setText(operation.toString());
+            toggleEditorEnabled();
         });
 
-        setOnMouseClicked(event -> popOver.show(this));
+        setOnMouseClicked(event -> {
+            popOver.show(this);
+            toggleEditorEnabled();
+        });
+    }
+
+    private void toggleEditorEnabled() {
+        if (getStyleClass().contains(STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED)) {
+            getStyleClass().remove(STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED);
+        } else {
+            getStyleClass().add(STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED);
+        }
     }
 
     public Operation getOperation() {
