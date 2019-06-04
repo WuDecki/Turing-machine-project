@@ -3,12 +3,12 @@ package gui.controllers;
 import gui.animations.TuringGridAnimation;
 import gui.builders.TuringMachineProgramBuilder;
 import gui.components.TuringGrid;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import model.*;
 import model.controllers.TuringMachineController;
 
@@ -28,7 +28,15 @@ public class MainController extends AbstractController {
     public ComboBox<State> removeStateInput;
     @FXML
     public TuringGrid grid;
+    @FXML
+    public Button startProgramButton;
+    @FXML
+    public CheckBox stepByStepCheckBox;
+
     private TuringMachineProgram program;
+    private BooleanProperty isProgramRunning = new SimpleBooleanProperty(false);
+    private TuringGridAnimation turingGridAnimation;
+    private Thread turingGridAnimationThread;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -36,6 +44,11 @@ public class MainController extends AbstractController {
         program = TuringMachineProgramBuilder.prepareProgram();
 
         initializeTuringGrid(program);
+        initializeProgramStartRestartButtons();
+    }
+
+    private void initializeProgramStartRestartButtons() {
+        stepByStepCheckBox.disableProperty().bind(isProgramRunning);
     }
 
     private void initializeTuringGrid(final TuringMachineProgram program) {
@@ -68,7 +81,20 @@ public class MainController extends AbstractController {
 
     @FXML
     public void startProgram() {
-        final TuringGridAnimation turingGridAnimation = new TuringGridAnimation(grid);
+        isProgramRunning.setValue(true);
+
+        turingGridAnimation = new TuringGridAnimation(grid, () -> {
+            this.isProgramRunning.setValue(false);
+            this.startProgramButton.setText("Start program");
+            this.startProgramButton.setOnAction(event -> this.startProgram());
+        });
+
+        if (stepByStepCheckBox.isSelected()) {
+            startProgramButton.setText("Next step");
+            turingGridAnimation.setTimeoutSeconds(1024);
+            startProgramButton.setOnAction(event -> this.startProgramNextStep());
+        }
+
         final Queue<TuringGridAnimation.MakeDecision> onMakeDecisionQueue = turingGridAnimation.getOnMakeDecisionQueue();
         final Queue<TuringGridAnimation.ChangeState> onChangeStateQueue = turingGridAnimation.getOnChangeStateQueue();
 
@@ -98,8 +124,12 @@ public class MainController extends AbstractController {
         System.out.println(Arrays.toString(machine.getRibbonTape()));
 
 
-        new Thread(turingGridAnimation).start();
+        turingGridAnimationThread = new Thread(turingGridAnimation);
+        turingGridAnimationThread.start();
+    }
 
+    private void startProgramNextStep() {
+        turingGridAnimationThread.interrupt();
     }
 
     @FXML
@@ -169,6 +199,16 @@ public class MainController extends AbstractController {
         } catch (final Exception ignored) {
             showError("Sorry, symbol could not be removed!");
         }
+    }
+
+    @FXML
+    public void restartProgram() {
+        if (turingGridAnimation != null && turingGridAnimation.isRunning()) {
+            turingGridAnimation.setRunning(false);
+        }
+
+        grid.clearHighlights();
+        isProgramRunning.setValue(false);
     }
 
     private void showError(final String message) {

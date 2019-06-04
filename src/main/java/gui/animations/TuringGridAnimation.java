@@ -14,10 +14,14 @@ public class TuringGridAnimation implements Runnable {
     private final Queue<MakeDecision> onMakeDecisionQueue;
     private final Queue<ChangeState> onChangeStateQueue;
     private final TuringGrid grid;
+    private final Runnable afterFinish;
+    private boolean running;
     private long timeoutSeconds = 1;
 
-    public TuringGridAnimation(TuringGrid grid) {
+    public TuringGridAnimation(TuringGrid grid, Runnable afterFinish) {
         this.grid = grid;
+        this.running = false;
+        this.afterFinish = afterFinish;
         onMakeDecisionQueue = new ConcurrentLinkedQueue<>();
         onChangeStateQueue = new ConcurrentLinkedQueue<>();
     }
@@ -27,39 +31,44 @@ public class TuringGridAnimation implements Runnable {
         TuringGridCell cell;
         List<TuringGridCell> stateColumn;
         List<TuringGridCell> characterRow;
+        running = true;
 
-        while (onMakeDecisionQueue.size() > 0 || onChangeStateQueue.size() > 0) {
-            MakeDecision decision = onMakeDecisionQueue.poll();
-            if (decision != null) {
-                stateColumn = grid.getStateColumn(decision.actualState);
-                characterRow = grid.getCharacterRow(decision.actualCharacter);
-                cell = grid.getCell(decision.actualState, decision.actualCharacter);
+        while (running && !Thread.interrupted() && (onMakeDecisionQueue.size() > 0 || onChangeStateQueue.size() > 0)) {
+            synchronized (this) {
+                MakeDecision decision = onMakeDecisionQueue.poll();
+                if (decision != null) {
+                    stateColumn = grid.getStateColumn(decision.actualState);
+                    characterRow = grid.getCharacterRow(decision.actualCharacter);
+                    cell = grid.getCell(decision.actualState, decision.actualCharacter);
 
-                grid.addStateHighlight(stateColumn);
+                    grid.addStateHighlight(stateColumn);
 
-                sleep();
+                    sleep();
 
-                grid.addCharacterHighlight(characterRow);
-                grid.addCellHighlight(cell);
+                    grid.addCharacterHighlight(characterRow);
+                    grid.addCellHighlight(cell);
 
-                sleep();
+                    sleep();
 
-                grid.removeStateHighlight(stateColumn);
-                grid.removeCharacterHighlight(characterRow);
-                grid.removeCellHighlight(cell);
-            }
+                    grid.removeStateHighlight(stateColumn);
+                    grid.removeCharacterHighlight(characterRow);
+                    grid.removeCellHighlight(cell);
+                }
 
-            ChangeState stateChange = onChangeStateQueue.poll();
-            if (stateChange != null) {
-                stateColumn = grid.getStateColumn(stateChange.nextState);
+                ChangeState stateChange = onChangeStateQueue.poll();
+                if (stateChange != null) {
+                    stateColumn = grid.getStateColumn(stateChange.nextState);
 
-                grid.addStateHighlight(stateColumn);
+                    grid.addStateHighlight(stateColumn);
 
-                sleep();
+                    sleep();
 
-                grid.removeStateHighlight(stateColumn);
+                    grid.removeStateHighlight(stateColumn);
+                }
             }
         }
+
+        this.afterFinish.run();
     }
 
     private void sleep() {
@@ -67,6 +76,14 @@ public class TuringGridAnimation implements Runnable {
             TimeUnit.SECONDS.sleep(timeoutSeconds);
         } catch (InterruptedException ignored) {
         }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 
     public TuringGrid getGrid() {
