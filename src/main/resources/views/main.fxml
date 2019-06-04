@@ -8,9 +8,9 @@
             style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/8.0.172-ea"
             fx:controller="gui.controllers.MainController">
     <bottom>
-        <HBox prefHeight="300.0" spacing="10.0" BorderPane.alignment="BOTTOM_LEFT">
+        <HBox fx:id="bottomArea" prefHeight="300.0" spacing="10.0" BorderPane.alignment="BOTTOM_LEFT">
             <children>
-                <ScrollPane minHeight="100.0" minWidth="100.0" HBox.hgrow="ALWAYS">
+                <ScrollPane id="turingGrid" minHeight="100.0" minWidth="100.0" HBox.hgrow="ALWAYS">
                     <content>
                         <TuringGrid fx:id="grid" gridLinesVisible="true" maxHeight="1.7976931348623157E308"
                                     maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity"/>
@@ -82,7 +82,8 @@
                         <Button fx:id="startProgramButton" mnemonicParsing="false" onAction="#startProgram"
                                 text="Start program"/>
                         <CheckBox fx:id="stepByStepCheckBox" mnemonicParsing="false" text="Step by step"/>
-                        <Button onAction="#restartProgram" mnemonicParsing="false" text="Restart"/>
+                        <Button mnemonicParsing="false" fx:id="restartProgramButton" onAction="#restartProgram"
+                                text="Restart"/>
                     </children>
                 </HBox>
             </children>

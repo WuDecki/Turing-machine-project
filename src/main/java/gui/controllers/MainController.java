@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import model.*;
 import model.controllers.TuringMachineController;
 
@@ -33,6 +34,11 @@ public class MainController extends AbstractController {
     @FXML
     public CheckBox stepByStepCheckBox;
 
+    @FXML
+    public HBox bottomArea;
+    @FXML
+    public Button restartProgramButton;
+
     private TuringMachineProgram program;
     private BooleanProperty isProgramRunning = new SimpleBooleanProperty(false);
     private TuringGridAnimation turingGridAnimation;
@@ -49,6 +55,7 @@ public class MainController extends AbstractController {
 
     private void initializeProgramStartRestartButtons() {
         stepByStepCheckBox.disableProperty().bind(isProgramRunning);
+        bottomArea.disableProperty().bind(isProgramRunning);
     }
 
     private void initializeTuringGrid(final TuringMachineProgram program) {
@@ -84,15 +91,19 @@ public class MainController extends AbstractController {
         isProgramRunning.setValue(true);
 
         turingGridAnimation = new TuringGridAnimation(grid, () -> {
-            this.isProgramRunning.setValue(false);
             this.startProgramButton.setText("Start program");
             this.startProgramButton.setOnAction(event -> this.startProgram());
+            this.startProgramButton.setDisable(false);
+            this.restartProgramButton.setDisable(false);
+            this.isProgramRunning.setValue(false);
         });
 
         if (stepByStepCheckBox.isSelected()) {
             startProgramButton.setText("Next step");
             turingGridAnimation.setTimeoutSeconds(1024);
             startProgramButton.setOnAction(event -> this.startProgramNextStep());
+        } else {
+            startProgramButton.setDisable(true);
         }
 
         final Queue<TuringGridAnimation.MakeDecision> onMakeDecisionQueue = turingGridAnimation.getOnMakeDecisionQueue();
@@ -204,6 +215,7 @@ public class MainController extends AbstractController {
     @FXML
     public void restartProgram() {
         if (turingGridAnimation != null && turingGridAnimation.isRunning()) {
+            restartProgramButton.setDisable(true);
             turingGridAnimationThread.interrupt();
             turingGridAnimation.setRunning(false);
         }

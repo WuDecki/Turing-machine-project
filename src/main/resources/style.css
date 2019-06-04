@@ -41,3 +41,7 @@ TuringGrid > TuringGridCell.turing-grid-cell-editor-enabled {
     -fx-border-color: red;
     -fx-background-color: red;
 }
+
+#turingGrid:disabled, #turingGrid *:disabled, #turingGrid > *:disabled {
+    -fx-opacity: 1.0;
+}
