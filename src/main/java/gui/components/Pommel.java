@@ -35,6 +35,12 @@ public class Pommel extends Polygon {
     public void move(Ribbon ribbon, PommelMovement movement) {
         ObservableList<Node> cells = ribbon.getChildren();
         final Integer indexChange = movement.getIndexChange();
+
+        if ((indexChange == -1 && actualPosition == 0) || (indexChange == 1 && actualPosition == cells.size())) {
+            return;
+        }
+
+
         double movementValue = ((Label) cells.get(0)).getWidth() * indexChange;
 
         final TranslateTransition transition = getTransition();

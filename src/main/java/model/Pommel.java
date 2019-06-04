@@ -8,7 +8,7 @@ public class Pommel {
         this.actualPosition = pommelPosition;
     }
 
-    public Character readCharacter(Ribbon ribbon) {
+    public Character readCharacter(Ribbon ribbon) throws TuringMachineException {
         return ribbon.getCharacterAtPosition(actualPosition);
     }
 

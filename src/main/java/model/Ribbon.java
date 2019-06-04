@@ -25,7 +25,11 @@ public class Ribbon {
         return length;
     }
 
-    public Character getCharacterAtPosition(Integer position) {
+    public Character getCharacterAtPosition(Integer position) throws TuringMachineException {
+        if (position > tape.length - 1 || position < 0) {
+            throw new TuringMachineException("Infinity loop detected! Program will not be executed!");
+        }
+
         return tape[position];
     }
 

@@ -55,7 +55,7 @@ public class TuringMachine {
         return -1;
     }
 
-    private TuringMachineResponse executeActualState() {
+    private TuringMachineResponse executeActualState() throws TuringMachineException {
         StateType actualStateType = getActualStateType();
 
         if (actualStateType == StateType.ACCEPTABLE) {
