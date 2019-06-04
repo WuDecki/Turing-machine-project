@@ -168,7 +168,11 @@ public class TuringGrid extends GridPane {
         return row;
     }
 
-    public void clearHighlights() {
-        getChildren().forEach(node -> node.getStyleClass().removeAll(HIGHLIGHT_CELL_CLASS, HIGHLIGHT_CHARACTER_CLASS, HIGHLIGHT_STATE_CLASS));
+    synchronized public void clearHighlights() {
+        for (TuringGridCell[] column : cells) {
+            for (TuringGridCell cell : column) {
+                cell.getStyleClass().removeAll(HIGHLIGHT_CELL_CLASS, HIGHLIGHT_CHARACTER_CLASS, HIGHLIGHT_STATE_CLASS);
+            }
+        }
     }
 }

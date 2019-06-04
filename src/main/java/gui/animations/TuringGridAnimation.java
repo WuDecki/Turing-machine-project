@@ -65,8 +65,14 @@ public class TuringGridAnimation implements Runnable {
 
                     grid.removeStateHighlight(stateColumn);
                 }
+
+                if (!running) {
+                    grid.clearHighlights();
+                }
             }
         }
+
+        running = false;
 
         this.afterFinish.run();
     }

@@ -204,6 +204,7 @@ public class MainController extends AbstractController {
     @FXML
     public void restartProgram() {
         if (turingGridAnimation != null && turingGridAnimation.isRunning()) {
+            turingGridAnimationThread.interrupt();
             turingGridAnimation.setRunning(false);
         }
 

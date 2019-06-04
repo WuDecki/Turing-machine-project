@@ -17,6 +17,8 @@ TuringGrid > TuringGridCell {
     -fx-border-width: 2;
     -fx-border-insets: 0;
     -fx-border-radius: 0;
+    -fx-border-color: black;
+    -fx-background-color: transparent;
 }
 
 
