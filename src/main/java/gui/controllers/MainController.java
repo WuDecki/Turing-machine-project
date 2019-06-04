@@ -6,6 +6,7 @@ import gui.builders.TuringMachineProgramBuilder;
 import gui.components.Pommel;
 import gui.components.Ribbon;
 import gui.components.TuringGrid;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -58,6 +59,7 @@ public class MainController extends AbstractController {
     private TuringAnimation turingAnimation;
     private Thread turingGridAnimationThread;
     private Character[] tape;
+    private TuringMachineResponse turingMachineResponse;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -126,6 +128,7 @@ public class MainController extends AbstractController {
             return;
         }
 
+        turingMachineResponse = null;
         isProgramRunning.setValue(true);
 
         pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
@@ -136,6 +139,9 @@ public class MainController extends AbstractController {
             this.startProgramButton.setDisable(false);
             this.restartProgramButton.setDisable(false);
             this.isProgramRunning.setValue(false);
+            if (this.turingMachineResponse != null) {
+                Platform.runLater(() -> showSuccess(String.format("The results of the program ended with an %s state!", turingMachineResponse.toString())));
+            }
         });
 
         if (stepByStepCheckBox.isSelected()) {
@@ -172,8 +178,8 @@ public class MainController extends AbstractController {
 
         machine.loadProgram(program);
         try {
-            final TuringMachineResponse response = machine.startProgram(tape);
-            System.out.println(response.toString());
+            turingMachineResponse = machine.startProgram(tape);
+            System.out.println(turingMachineResponse.toString());
         } catch (final TuringMachineException e) {
             showError(e.getMessage());
             isProgramRunning.setValue(false);
