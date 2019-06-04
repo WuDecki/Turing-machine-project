@@ -1,39 +1,49 @@
 package gui.animations;
 
+import gui.components.Pommel;
+import gui.components.Ribbon;
 import gui.components.TuringGrid;
 import gui.components.TuringGridCell;
-import model.State;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import model.Operation;
 
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-public class TuringGridAnimation implements Runnable {
+public class TuringAnimation extends Task<Void> {
 
     private final Queue<MakeDecision> onMakeDecisionQueue;
     private final Queue<ChangeState> onChangeStateQueue;
+    private final Queue<Operation> onProcessOperationQueue;
     private final TuringGrid grid;
+    private final Pommel pommel;
+    private final Ribbon ribbon;
     private final Runnable afterFinish;
     private boolean running;
     private long timeoutSeconds = 1;
 
-    public TuringGridAnimation(TuringGrid grid, Runnable afterFinish) {
+    public TuringAnimation(TuringGrid grid, Pommel pommel, Ribbon ribbon, Runnable afterFinish) {
         this.grid = grid;
+        this.pommel = pommel;
+        this.ribbon = ribbon;
         this.running = false;
         this.afterFinish = afterFinish;
         onMakeDecisionQueue = new ConcurrentLinkedQueue<>();
         onChangeStateQueue = new ConcurrentLinkedQueue<>();
+        onProcessOperationQueue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
-    public void run() {
+    protected Void call() throws Exception {
         TuringGridCell cell;
         List<TuringGridCell> stateColumn;
         List<TuringGridCell> characterRow;
         running = true;
 
-        while (running && !Thread.interrupted() && (onMakeDecisionQueue.size() > 0 || onChangeStateQueue.size() > 0)) {
+        while (running && !Thread.interrupted() && (onMakeDecisionQueue.size() > 0 || onChangeStateQueue.size() > 0 || onProcessOperationQueue.size() > 0)) {
             synchronized (this) {
                 MakeDecision decision = onMakeDecisionQueue.poll();
                 if (decision != null) {
@@ -66,6 +76,14 @@ public class TuringGridAnimation implements Runnable {
                     grid.removeStateHighlight(stateColumn);
                 }
 
+                Operation operation = onProcessOperationQueue.poll();
+                if (operation != null) {
+                    Platform.runLater(() -> ribbon.setCharacter(pommel.getActualPosition(), operation.getNewChar()));
+
+                    sleep();
+                    pommel.move(ribbon, operation.getMovement());
+                }
+
                 if (!running) {
                     grid.clearHighlights();
                 }
@@ -75,6 +93,8 @@ public class TuringGridAnimation implements Runnable {
         running = false;
 
         this.afterFinish.run();
+
+        return null;
     }
 
     private void sleep() {
@@ -84,7 +104,7 @@ public class TuringGridAnimation implements Runnable {
         }
     }
 
-    public boolean isRunning() {
+    public boolean isTaskRunning() {
         return running;
     }
 
@@ -108,21 +128,25 @@ public class TuringGridAnimation implements Runnable {
         return onChangeStateQueue;
     }
 
+    public Queue<Operation> getOnProcessOperationQueue() {
+        return onProcessOperationQueue;
+    }
+
     public static class MakeDecision {
-        final State actualState;
+        final model.State actualState;
         final Character actualCharacter;
 
-        public MakeDecision(final State actualState, final Character actualCharacter) {
+        public MakeDecision(final model.State actualState, final Character actualCharacter) {
             this.actualState = actualState;
             this.actualCharacter = actualCharacter;
         }
     }
 
     public static class ChangeState {
-        final State actualState;
-        final State nextState;
+        final model.State actualState;
+        final model.State nextState;
 
-        public ChangeState(final State actualState, final State nextState) {
+        public ChangeState(final model.State actualState, final model.State nextState) {
             this.actualState = actualState;
             this.nextState = nextState;
         }

@@ -10,6 +10,9 @@ import model.PommelMovement;
 import model.PommelStartPosition;
 
 public class Pommel extends Polygon {
+
+    private int actualPosition = 0;
+
     public void setPosition(Ribbon ribbon, PommelStartPosition position) {
         ObservableList<Node> cells = ribbon.getChildren();
         double cellWidth = ((Label) cells.get(0)).getWidth();
@@ -20,8 +23,10 @@ public class Pommel extends Polygon {
 
         if (position.equals(PommelStartPosition.BEGINNING)) {
             transition.setByX(-movementValue + Math.round(cellWidth / 2) - Math.round(getTranslateX()));
+            actualPosition = 0;
         } else {
             transition.setByX(movementValue - Math.round(cellWidth / 2) - Math.round(getTranslateX()));
+            actualPosition = cells.size();
         }
 
         transition.play();
@@ -29,13 +34,22 @@ public class Pommel extends Polygon {
 
     public void move(Ribbon ribbon, PommelMovement movement) {
         ObservableList<Node> cells = ribbon.getChildren();
-        double movementValue = ((Label) cells.get(0)).getWidth() * movement.getIndexChange();
+        final Integer indexChange = movement.getIndexChange();
+        double movementValue = ((Label) cells.get(0)).getWidth() * indexChange;
 
         final TranslateTransition transition = getTransition();
 
         transition.setByX(movementValue);
 
         transition.play();
+
+
+        if (indexChange == 1) {
+            actualPosition += 1;
+        } else if (indexChange == -1) {
+            actualPosition -= 1;
+        }
+
     }
 
     private TranslateTransition getTransition() {
@@ -46,4 +60,7 @@ public class Pommel extends Polygon {
         return transition;
     }
 
+    public int getActualPosition() {
+        return actualPosition;
+    }
 }

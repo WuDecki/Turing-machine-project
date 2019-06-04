@@ -1,5 +1,6 @@
 import gui.configuration.Config;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -22,6 +23,7 @@ public class Main extends Application {
         configurePrimaryStageAndRoot(primaryStage, root);
         applyTheme(root);
 
+        Platform.setImplicitExit(false);
         primaryStage.show();
     }
 

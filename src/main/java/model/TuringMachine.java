@@ -79,6 +79,7 @@ public class TuringMachine {
     private State processOperation(Operation operation) {
         pommel.writeCharacter(ribbon, operation.getNewChar());
         pommel.move(operation.getMovement());
+        controller.onProcessOperation(operation);
         return operation.getNextState();
     }
 

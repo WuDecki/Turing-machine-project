@@ -63,6 +63,8 @@ public class TuringMachineProgramBuilder {
         for (int i = states.size() - 2; i < states.size(); i++) {
             states.get(i).setIdn("S" + (i));
         }
+
+        program.setFirstState(program.getStates().get(0));
     }
 
     public static void removeState(final TuringMachineProgram program, final State toRemove) {
@@ -165,9 +167,9 @@ public class TuringMachineProgramBuilder {
         final List<Character> characters = new ArrayList<>();
 
         for (final char character : text.toCharArray()) {
-            characters.add(Character.valueOf(character));
+            characters.add(character);
         }
 
-        return characters.toArray(new Character[characters.size()]);
+        return characters.toArray(new Character[0]);
     }
 }

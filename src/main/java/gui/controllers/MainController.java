@@ -1,6 +1,6 @@
 package gui.controllers;
 
-import gui.animations.TuringGridAnimation;
+import gui.animations.TuringAnimation;
 import gui.builders.TuringMachineProgramBuilder;
 import gui.components.Pommel;
 import gui.components.Ribbon;
@@ -48,8 +48,9 @@ public class MainController extends AbstractController {
 
     private TuringMachineProgram program;
     private BooleanProperty isProgramRunning = new SimpleBooleanProperty(false);
-    private TuringGridAnimation turingGridAnimation;
+    private TuringAnimation turingAnimation;
     private Thread turingGridAnimationThread;
+    private Character[] tape;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -63,7 +64,7 @@ public class MainController extends AbstractController {
         pommelStartingPositionChoiceBox.setValue(PommelStartPosition.BEGINNING);
         pommelStartingPositionChoiceBox.setOnAction(event -> pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue()));
 
-        initializeRibbonAndPommel(TuringMachineProgramBuilder.prepareTape("      "));
+        initializeRibbonAndPommel(TuringMachineProgramBuilder.prepareTape("$$$$$"));
     }
 
     private void initializeProgramStartRestartButtons() {
@@ -101,12 +102,26 @@ public class MainController extends AbstractController {
 
     @FXML
     public void startProgram() {
+        if (tape == null || tape.length == 0) {
+            showError("Please initialize tape!");
+            return;
+        }
+
+        if (program.getStates().size() < 3) {
+            showError("Turing machine program needs more than 3 states to be executed!");
+            return;
+        }
+
+        if (program.getSymbols().size() < 2) {
+            showError("Turing machine program needs more than 2 symbols to be executed!");
+            return;
+        }
+
         isProgramRunning.setValue(true);
 
-        pommel.setPosition(ribbon, PommelStartPosition.BEGINNING);
-        pommel.move(ribbon, PommelMovement.LEFT);
+        pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
 
-        turingGridAnimation = new TuringGridAnimation(grid, () -> {
+        turingAnimation = new TuringAnimation(grid, pommel, ribbon, () -> {
             this.startProgramButton.setText("Start program");
             this.startProgramButton.setOnAction(event -> this.startProgram());
             this.startProgramButton.setDisable(false);
@@ -116,43 +131,51 @@ public class MainController extends AbstractController {
 
         if (stepByStepCheckBox.isSelected()) {
             startProgramButton.setText("Next step");
-            turingGridAnimation.setTimeoutSeconds(1024);
+            turingAnimation.setTimeoutSeconds(1024);
             startProgramButton.setOnAction(event -> this.startProgramNextStep());
         } else {
             startProgramButton.setDisable(true);
         }
 
-        final Queue<TuringGridAnimation.MakeDecision> onMakeDecisionQueue = turingGridAnimation.getOnMakeDecisionQueue();
-        final Queue<TuringGridAnimation.ChangeState> onChangeStateQueue = turingGridAnimation.getOnChangeStateQueue();
+        final Queue<TuringAnimation.MakeDecision> onMakeDecisionQueue = turingAnimation.getOnMakeDecisionQueue();
+        final Queue<TuringAnimation.ChangeState> onChangeStateQueue = turingAnimation.getOnChangeStateQueue();
+        final Queue<Operation> onProcessOperationQueue = turingAnimation.getOnProcessOperationQueue();
 
         final TuringMachine machine = new TuringMachine(new TuringMachineController() {
             @Override
             public void onMakeDecision(final model.State actualState, final Character actualCharacter) {
                 System.out.println(String.format("onMakeDecision %s %c", actualState, actualCharacter));
-                onMakeDecisionQueue.add(new TuringGridAnimation.MakeDecision(actualState, actualCharacter));
+                onMakeDecisionQueue.add(new TuringAnimation.MakeDecision(actualState, actualCharacter));
             }
 
             @Override
             public void onChangeState(final model.State actualState, final model.State nextState) {
                 System.out.println(String.format("onChangeState %s %s", actualState, nextState));
-                onChangeStateQueue.add(new TuringGridAnimation.ChangeState(actualState, nextState));
+                onChangeStateQueue.add(new TuringAnimation.ChangeState(actualState, nextState));
+            }
+
+            @Override
+            public void onProcessOperation(final Operation operation) {
+                System.out.println(String.format("onProcessOperation %s %s", operation.getNewChar(), operation.getMovement()));
+                onProcessOperationQueue.add(operation);
             }
         });
 
         machine.loadProgram(program);
-        final Character[] tape = TuringMachineProgramBuilder.prepareTape("abcccbba$");
-
         try {
             final TuringMachineResponse response = machine.startProgram(tape);
             System.out.println(response.toString());
         } catch (final TuringMachineException e) {
-            e.printStackTrace();
+            showError(e.getMessage());
+            isProgramRunning.setValue(false);
+            startProgramButton.setDisable(false);
+            return;
         }
 
         System.out.println(Arrays.toString(machine.getRibbonTape()));
 
 
-        turingGridAnimationThread = new Thread(turingGridAnimation);
+        turingGridAnimationThread = new Thread(turingAnimation);
         turingGridAnimationThread.start();
     }
 
@@ -236,10 +259,10 @@ public class MainController extends AbstractController {
 
     @FXML
     public void restartProgram() {
-        if (turingGridAnimation != null && turingGridAnimation.isRunning()) {
+        if (turingAnimation != null && turingAnimation.isTaskRunning()) {
             restartProgramButton.setDisable(true);
             turingGridAnimationThread.interrupt();
-            turingGridAnimation.setRunning(false);
+            turingAnimation.setRunning(false);
         }
 
         grid.clearHighlights();
@@ -260,18 +283,28 @@ public class MainController extends AbstractController {
         dialog.setHeaderText("Provide tape characters");
 
         dialog.showAndWait()
-                .ifPresent(tape -> {
-                    if (!tape.matches("[a-zA-Z$]*")) {
+                .ifPresent(characters -> {
+                    if (!characters.matches("[a-zA-Z$]*")) {
                         showError("Symbol need to be an alphabetical english character! (Character \"$\" is acceptable)");
                         return;
                     }
 
-                    if (tape.isEmpty()) {
+                    if (characters.isEmpty()) {
                         showError("Tape can't be empty!");
                         return;
                     }
 
-                    initializeRibbonAndPommel(TuringMachineProgramBuilder.prepareTape(tape));
+                    final Character movementCharacter = program.getMovementCharacter();
+//                    if (characters.charAt(0) != movementCharacter) {
+//                        characters = movementCharacter + characters;
+//                    }
+
+                    if (characters.charAt(characters.length() - 1) != movementCharacter) {
+                        characters = characters + movementCharacter;
+                    }
+
+                    tape = TuringMachineProgramBuilder.prepareTape(characters);
+                    initializeRibbonAndPommel(tape);
                 });
     }
 }

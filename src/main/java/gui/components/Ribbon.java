@@ -21,4 +21,7 @@ public class Ribbon extends HBox {
         layout();
     }
 
+    public void setCharacter(int position, Character newChar) {
+        ((Label) getChildren().get(position)).setText(newChar.toString());
+    }
 }
