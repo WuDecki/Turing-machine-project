@@ -2,6 +2,8 @@ package gui.controllers;
 
 import gui.animations.TuringGridAnimation;
 import gui.builders.TuringMachineProgramBuilder;
+import gui.components.Pommel;
+import gui.components.Ribbon;
 import gui.components.TuringGrid;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -33,11 +35,16 @@ public class MainController extends AbstractController {
     public Button startProgramButton;
     @FXML
     public CheckBox stepByStepCheckBox;
-
     @FXML
     public HBox bottomArea;
     @FXML
     public Button restartProgramButton;
+    @FXML
+    public Pommel pommel;
+    @FXML
+    public Ribbon ribbon;
+    @FXML
+    public ChoiceBox<PommelStartPosition> pommelStartingPositionChoiceBox;
 
     private TuringMachineProgram program;
     private BooleanProperty isProgramRunning = new SimpleBooleanProperty(false);
@@ -46,11 +53,17 @@ public class MainController extends AbstractController {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-//        program = TuringMachineProgramBuilder.getDefaultProgram();
-        program = TuringMachineProgramBuilder.prepareProgram();
+        program = TuringMachineProgramBuilder.getDefaultProgram();
+//        program = TuringMachineProgramBuilder.prepareProgram();
 
         initializeTuringGrid(program);
         initializeProgramStartRestartButtons();
+
+        pommelStartingPositionChoiceBox.setItems(FXCollections.observableArrayList(PommelStartPosition.BEGINNING, PommelStartPosition.END));
+        pommelStartingPositionChoiceBox.setValue(PommelStartPosition.BEGINNING);
+        pommelStartingPositionChoiceBox.setOnAction(event -> pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue()));
+
+        initializeRibbonAndPommel(TuringMachineProgramBuilder.prepareTape("      "));
     }
 
     private void initializeProgramStartRestartButtons() {
@@ -90,6 +103,9 @@ public class MainController extends AbstractController {
     public void startProgram() {
         isProgramRunning.setValue(true);
 
+        pommel.setPosition(ribbon, PommelStartPosition.BEGINNING);
+        pommel.move(ribbon, PommelMovement.LEFT);
+
         turingGridAnimation = new TuringGridAnimation(grid, () -> {
             this.startProgramButton.setText("Start program");
             this.startProgramButton.setOnAction(event -> this.startProgram());
@@ -125,6 +141,7 @@ public class MainController extends AbstractController {
 
         machine.loadProgram(program);
         final Character[] tape = TuringMachineProgramBuilder.prepareTape("abcccbba$");
+
         try {
             final TuringMachineResponse response = machine.startProgram(tape);
             System.out.println(response.toString());
@@ -137,6 +154,11 @@ public class MainController extends AbstractController {
 
         turingGridAnimationThread = new Thread(turingGridAnimation);
         turingGridAnimationThread.start();
+    }
+
+    private void initializeRibbonAndPommel(Character[] tape) {
+        ribbon.init(tape);
+        pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
     }
 
     private void startProgramNextStep() {
@@ -221,6 +243,7 @@ public class MainController extends AbstractController {
         }
 
         grid.clearHighlights();
+        pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
         isProgramRunning.setValue(false);
     }
 
@@ -229,5 +252,26 @@ public class MainController extends AbstractController {
         alert.setHeaderText("Error");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void initializeType(ActionEvent event) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Tape Input Dialog");
+        dialog.setHeaderText("Provide tape characters");
+
+        dialog.showAndWait()
+                .ifPresent(tape -> {
+                    if (!tape.matches("[a-zA-Z$]*")) {
+                        showError("Symbol need to be an alphabetical english character! (Character \"$\" is acceptable)");
+                        return;
+                    }
+
+                    if (tape.isEmpty()) {
+                        showError("Tape can't be empty!");
+                        return;
+                    }
+
+                    initializeRibbonAndPommel(TuringMachineProgramBuilder.prepareTape(tape));
+                });
     }
 }

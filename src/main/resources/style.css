@@ -45,3 +45,16 @@ TuringGrid > TuringGridCell.turing-grid-cell-editor-enabled {
 #turingGrid:disabled, #turingGrid *:disabled, #turingGrid > *:disabled {
     -fx-opacity: 1.0;
 }
+
+.ribbon {
+
+}
+
+.ribbon > Label {
+    -fx-border-style: solid inside;
+    -fx-border-width: 1;
+    -fx-border-color: black;
+    -fx-background-color: transparent;
+    -fx-padding: 10 20;
+    -fx-font-size: 24;
+}
