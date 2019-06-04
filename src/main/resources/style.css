@@ -19,6 +19,9 @@ TuringGrid > TuringGridCell {
     -fx-border-radius: 0;
     -fx-border-color: black;
     -fx-background-color: transparent;
+    -fx-min-width: 55;
+    -fx-min-height: 65;
+    -fx-alignment: center;
 }
 
 
@@ -55,6 +58,8 @@ TuringGrid > TuringGridCell.turing-grid-cell-editor-enabled {
     -fx-border-width: 1;
     -fx-border-color: black;
     -fx-background-color: transparent;
-    -fx-padding: 10 20;
+    -fx-alignment: center;
     -fx-font-size: 24;
+    -fx-min-width: 55;
+    -fx-min-height: 65;
 }

@@ -43,7 +43,7 @@ public class MainController extends AbstractController {
     @FXML
     public CheckBox stepByStepCheckBox;
     @FXML
-    public HBox bottomArea;
+    public HBox toolsAndOptions;
     @FXML
     public Button restartProgramButton;
     @FXML
@@ -76,7 +76,8 @@ public class MainController extends AbstractController {
 
     private void initializeProgramStartRestartButtons() {
         stepByStepCheckBox.disableProperty().bind(isProgramRunning);
-        bottomArea.disableProperty().bind(isProgramRunning);
+        grid.disableProperty().bind(isProgramRunning);
+        toolsAndOptions.disableProperty().bind(isProgramRunning);
     }
 
     private void initializeTuringGrid(final TuringMachineProgram program) {
@@ -291,14 +292,11 @@ public class MainController extends AbstractController {
                 final JSONObject jsonProgram = JsonFileManager.readJsonObject(file.getAbsolutePath());
                 program = new JsonToProgramConverter(jsonProgram).convert();
                 initializeTuringGrid(program);
+                showSuccess("Program successfully imported!");
             }
         } catch (Exception e) {
             showError("Error during Turing machine program import!");
-
-            return;
         }
-
-        showSuccess("Program successfully imported!");
     }
 
     @FXML
@@ -314,14 +312,11 @@ public class MainController extends AbstractController {
         try {
             if (file != null) {
                 JsonFileManager.writeJsonObject(file.getAbsolutePath(), new ProgramToJsonConverter(program).convert());
+                showSuccess("Program successfully saved!");
             }
         } catch (Exception e) {
             showError("Error during Turing machine program export!");
-
-            return;
         }
-
-        showSuccess("Program successfully saved!");
     }
 
     private void showError(final String message) {
@@ -356,9 +351,9 @@ public class MainController extends AbstractController {
                     }
 
                     final Character movementCharacter = program.getMovementCharacter();
-                    if (characters.charAt(0) != movementCharacter) {
-                        characters = movementCharacter + characters;
-                    }
+//                    if (characters.charAt(0) != movementCharacter) {
+//                        characters = movementCharacter + characters;
+//                    }
 
                     if (characters.charAt(characters.length() - 1) != movementCharacter) {
                         characters = characters + movementCharacter;

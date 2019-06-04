@@ -12,7 +12,7 @@ import org.controlsfx.control.PopOver;
 
 public class TuringGridCell extends Label {
     private static final String STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED = "turing-grid-cell-editor-enabled";
-    private static final Insets DEFAULT_CELL_PADDING = new Insets(5, 10, 5, 10);
+    private static final Insets DEFAULT_CELL_PADDING = new Insets(0, 0, 0, 0);
     private final Operation operation;
     private State state;
 
