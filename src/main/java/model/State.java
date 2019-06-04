@@ -28,6 +28,7 @@ public class State {
     }
 
     public void addOperation(final Character character, final Operation operation) {
+        operation.setConditionalChar(character);
         operations.put(character, operation);
     }
 

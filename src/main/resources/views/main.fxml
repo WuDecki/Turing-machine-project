@@ -4,15 +4,13 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-color: transparent;"
-            xmlns="http://javafx.com/javafx/8.0.172-ea" fx:controller="gui.controllers.MainController">
-    <center>
-        <StackPane minHeight="150.0" minWidth="200.0" BorderPane.alignment="CENTER"/>
-    </center>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="800.0"
+            style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/8.0.172-ea"
+            fx:controller="gui.controllers.MainController">
     <bottom>
-        <HBox spacing="10.0" BorderPane.alignment="TOP_RIGHT">
+        <HBox prefHeight="300.0" spacing="10.0" BorderPane.alignment="BOTTOM_LEFT">
             <children>
-                <ScrollPane minHeight="100.0" minWidth="100.0">
+                <ScrollPane minHeight="100.0" minWidth="100.0" HBox.hgrow="ALWAYS">
                     <content>
                         <TuringGrid fx:id="grid" gridLinesVisible="true" maxHeight="1.7976931348623157E308"
                                     maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity"/>
@@ -76,4 +74,16 @@
     <opaqueInsets>
         <Insets/>
     </opaqueInsets>
+    <center>
+        <VBox minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="TOP_CENTER" spacing="10.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#startProgram" text="Start program"/>
+                        <Button mnemonicParsing="false" text="Restart"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
 </BorderPane>

@@ -14,7 +14,7 @@ TuringGrid {
 TuringGrid > TuringGridCell {
     -fx-grid-lines-visible: true;
     -fx-border-style: solid inside;
-    -fx-border-width: 1;
+    -fx-border-width: 2;
     -fx-border-insets: 0;
     -fx-border-radius: 0;
 }
@@ -23,4 +23,19 @@ TuringGrid > TuringGridCell {
 TuringGrid > TuringGridCell.turing-grid-cell-editor-enabled {
     -fx-border-color: red;
     -fx-background-color: #dcdcdc;
+}
+
+.highlight-state {
+    -fx-border-color: black red black red;
+    -fx-background-color: #dcdcdc;
+}
+
+.highlight-character {
+    -fx-border-color: red black red black;
+    -fx-background-color: #dcdcdc;
+}
+
+.highlight-cell {
+    -fx-border-color: red;
+    -fx-background-color: red;
 }

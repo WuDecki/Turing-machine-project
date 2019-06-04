@@ -6,6 +6,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import model.Operation;
+import model.State;
 import model.TuringMachineProgram;
 import org.controlsfx.control.PopOver;
 
@@ -13,6 +14,7 @@ public class TuringGridCell extends Label {
     private static final String STYLE_CLASS_TURING_GRID_CELL_EDITOR_ENABLED = "turing-grid-cell-editor-enabled";
     private static final Insets DEFAULT_CELL_PADDING = new Insets(5, 10, 5, 10);
     private final Operation operation;
+    private State state;
 
     public TuringGridCell(final String text, final Operation operation, final FontWeight fontWeight, final double fontSize, final Insets padding) {
         super(text);
@@ -21,6 +23,7 @@ public class TuringGridCell extends Label {
         setTextAlignment(TextAlignment.CENTER);
         setPadding(padding);
         this.operation = operation;
+        state = null;
     }
 
     public TuringGridCell(final String text, final Operation operation, final FontWeight fontWeight, final double fontSize) {
@@ -74,5 +77,13 @@ public class TuringGridCell extends Label {
 
     public Operation getOperation() {
         return operation;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(final State state) {
+        this.state = state;
     }
 }

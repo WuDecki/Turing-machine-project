@@ -3,6 +3,7 @@ package model;
 public class Operation {
 
     private Character newChar;
+    private Character conditionalChar;
     private PommelMovement movement;
     private State nextState;
 
@@ -34,6 +35,14 @@ public class Operation {
 
     public void setNextState(final State nextState) {
         this.nextState = nextState;
+    }
+
+    public Character getConditionalChar() {
+        return conditionalChar;
+    }
+
+    public void setConditionalChar(Character conditionalChar) {
+        this.conditionalChar = conditionalChar;
     }
 
     @Override

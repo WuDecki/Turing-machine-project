@@ -1,5 +1,6 @@
 package gui.controllers;
 
+import gui.animations.TuringGridAnimation;
 import gui.builders.TuringMachineProgramBuilder;
 import gui.components.TuringGrid;
 import javafx.collections.FXCollections;
@@ -8,11 +9,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import model.State;
-import model.StateType;
-import model.TuringMachineProgram;
+import model.*;
+import model.controllers.TuringMachineController;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -30,7 +32,8 @@ public class MainController extends AbstractController {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        program = TuringMachineProgramBuilder.getDefaultProgram();
+//        program = TuringMachineProgramBuilder.getDefaultProgram();
+        program = TuringMachineProgramBuilder.prepareProgram();
 
         initializeTuringGrid(program);
     }
@@ -61,6 +64,42 @@ public class MainController extends AbstractController {
         }
 
         grid.initialize(program);
+    }
+
+    @FXML
+    public void startProgram() {
+        final TuringGridAnimation turingGridAnimation = new TuringGridAnimation(grid);
+        final Queue<TuringGridAnimation.MakeDecision> onMakeDecisionQueue = turingGridAnimation.getOnMakeDecisionQueue();
+        final Queue<TuringGridAnimation.ChangeState> onChangeStateQueue = turingGridAnimation.getOnChangeStateQueue();
+
+        final TuringMachine machine = new TuringMachine(new TuringMachineController() {
+            @Override
+            public void onMakeDecision(final model.State actualState, final Character actualCharacter) {
+                System.out.println(String.format("onMakeDecision %s %c", actualState, actualCharacter));
+                onMakeDecisionQueue.add(new TuringGridAnimation.MakeDecision(actualState, actualCharacter));
+            }
+
+            @Override
+            public void onChangeState(final model.State actualState, final model.State nextState) {
+                System.out.println(String.format("onChangeState %s %s", actualState, nextState));
+                onChangeStateQueue.add(new TuringGridAnimation.ChangeState(actualState, nextState));
+            }
+        });
+
+        machine.loadProgram(program);
+        final Character[] tape = TuringMachineProgramBuilder.prepareTape("abcccbba$");
+        try {
+            final TuringMachineResponse response = machine.startProgram(tape);
+            System.out.println(response.toString());
+        } catch (final TuringMachineException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(Arrays.toString(machine.getRibbonTape()));
+
+
+        new Thread(turingGridAnimation).start();
+
     }
 
     @FXML
