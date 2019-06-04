@@ -72,8 +72,24 @@
                             <font>
                                 <Font size="14.0"/>
                             </font>
+                            <VBox.margin>
+                                <Insets top="15.0"/>
+                            </VBox.margin>
                         </Label>
                         <ChoiceBox fx:id="pommelStartingPositionChoiceBox"/>
+                        <Label alignment="TOP_LEFT" contentDisplay="BOTTOM" layoutX="10.0" layoutY="40.0"
+                               text="Import / Export">
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                            <VBox.margin>
+                                <Insets top="15.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <Button layoutX="10.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#importTuringProgram" text="Import program"/>
+                        <Button layoutX="10.0" layoutY="150.0" minHeight="-Infinity" minWidth="-Infinity"
+                                mnemonicParsing="false" onAction="#exportTuringProgram" text="Export program"/>
                     </children>
                 </VBox>
             </children>

@@ -1,5 +1,6 @@
 package gui.controllers;
 
+import gui.StaticContext;
 import gui.animations.TuringAnimation;
 import gui.builders.TuringMachineProgramBuilder;
 import gui.components.Pommel;
@@ -12,9 +13,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import model.*;
 import model.controllers.TuringMachineController;
+import model.conversion.JsonFileManager;
+import model.conversion.JsonToProgramConverter;
+import model.conversion.ProgramToJsonConverter;
+import org.json.JSONObject;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Queue;
@@ -98,6 +105,7 @@ public class MainController extends AbstractController {
         }
 
         grid.initialize(program);
+        pommelStartingPositionChoiceBox.setValue(program.getStartPosition());
     }
 
     @FXML
@@ -169,6 +177,7 @@ public class MainController extends AbstractController {
             showError(e.getMessage());
             isProgramRunning.setValue(false);
             startProgramButton.setDisable(false);
+            restartProgram();
             return;
         }
 
@@ -265,14 +274,66 @@ public class MainController extends AbstractController {
             turingAnimation.setRunning(false);
         }
 
+        startProgramButton.setDisable(false);
         grid.clearHighlights();
         pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
         isProgramRunning.setValue(false);
     }
 
+    @FXML
+    public void importTuringProgram() {
+        final FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Turing Machine Program File");
+        final File file = fileChooser.showOpenDialog(StaticContext.stage);
+
+        try {
+            if (file != null) {
+                final JSONObject jsonProgram = JsonFileManager.readJsonObject(file.getAbsolutePath());
+                program = new JsonToProgramConverter(jsonProgram).convert();
+                initializeTuringGrid(program);
+            }
+        } catch (Exception e) {
+            showError("Error during Turing machine program import!");
+
+            return;
+        }
+
+        showSuccess("Program successfully imported!");
+    }
+
+    @FXML
+    public void exportTuringProgram() {
+        final FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Turing Machine Program File");
+        FileChooser.ExtensionFilter fileExtensions =
+                new FileChooser.ExtensionFilter("JSON", "*.json");
+
+        fileChooser.getExtensionFilters().add(fileExtensions);
+        final File file = fileChooser.showSaveDialog(StaticContext.stage);
+
+        try {
+            if (file != null) {
+                JsonFileManager.writeJsonObject(file.getAbsolutePath(), new ProgramToJsonConverter(program).convert());
+            }
+        } catch (Exception e) {
+            showError("Error during Turing machine program export!");
+
+            return;
+        }
+
+        showSuccess("Program successfully saved!");
+    }
+
     private void showError(final String message) {
         final Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText("Error");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showSuccess(final String message) {
+        final Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText("Success");
         alert.setContentText(message);
         alert.showAndWait();
     }
@@ -295,9 +356,9 @@ public class MainController extends AbstractController {
                     }
 
                     final Character movementCharacter = program.getMovementCharacter();
-//                    if (characters.charAt(0) != movementCharacter) {
-//                        characters = movementCharacter + characters;
-//                    }
+                    if (characters.charAt(0) != movementCharacter) {
+                        characters = movementCharacter + characters;
+                    }
 
                     if (characters.charAt(characters.length() - 1) != movementCharacter) {
                         characters = characters + movementCharacter;
