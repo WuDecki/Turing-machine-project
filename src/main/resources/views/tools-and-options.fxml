@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<HBox xmlns:fx="http://javafx.com/fxml"
+      xmlns="http://javafx.com/javafx"
+      fx:controller="gui.controllers.ToolsAndOptionsController" fx:id="toolsAndOptions" spacing="20.0"
+      HBox.hgrow="ALWAYS">
+    <VBox alignment="TOP_RIGHT" spacing="5.0">
+        <children>
+            <HBox layoutX="10.0" layoutY="40.0" spacing="5.0">
+                <children>
+                    <Button minHeight="-Infinity" minWidth="-Infinity"
+                            mnemonicParsing="false" onAction="#addState" text="Add State"
+                            textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                        <HBox.margin>
+                            <Insets left="70.0"/>
+                        </HBox.margin>
+                    </Button>
+                </children>
+            </HBox>
+            <HBox layoutX="10.0" layoutY="70.0" spacing="5.0">
+                <children>
+                    <ComboBox fx:id="removeStateInput" minHeight="-Infinity"
+                              minWidth="-Infinity" prefWidth="65.0"/>
+                    <Button minHeight="-Infinity" minWidth="-Infinity"
+                            mnemonicParsing="false" onAction="#removeState"
+                            text="Remove State"/>
+                </children>
+            </HBox>
+            <HBox spacing="5.0">
+                <children>
+                    <TextField fx:id="addSymbolInput" minHeight="-Infinity"
+                               minWidth="-Infinity" prefWidth="65.0"/>
+                    <Button minHeight="-Infinity" minWidth="-Infinity"
+                            mnemonicParsing="false" onAction="#addSymbol"
+                            text="Add Symbol"/>
+                </children>
+            </HBox>
+            <HBox layoutX="10.0" layoutY="40.0" spacing="5.0">
+                <children>
+                    <ComboBox fx:id="removeSymbolInput" minHeight="-Infinity"
+                              minWidth="-Infinity" prefWidth="65.0"/>
+                    <Button minHeight="-Infinity" minWidth="-Infinity"
+                            mnemonicParsing="false" onAction="#removeSymbol"
+                            text="Remove Symbol"/>
+                </children>
+            </HBox>
+            <HBox layoutX="10.0" layoutY="10.0" spacing="5.0">
+                <children>
+                    <Button minHeight="-Infinity" minWidth="-Infinity"
+                            mnemonicParsing="false" onAction="#clearProgram"
+                            text="Clear program" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                        <HBox.margin>
+                            <Insets left="70.0"/>
+                        </HBox.margin>
+                    </Button>
+                </children>
+            </HBox>
+        </children>
+        <HBox.margin>
+            <Insets/>
+        </HBox.margin>
+    </VBox>
+    <VBox spacing="5.0">
+        <children>
+            <Button minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
+                    onAction="#initializeTape" text="Initialize tape"/>
+            <Label alignment="TOP_LEFT" contentDisplay="BOTTOM" text="Pommel position">
+                <font>
+                    <Font size="14.0"/>
+                </font>
+                <VBox.margin>
+                    <Insets top="15.0"/>
+                </VBox.margin>
+            </Label>
+            <ChoiceBox fx:id="pommelStartingPositionChoiceBox"/>
+            <Label alignment="TOP_LEFT" contentDisplay="BOTTOM" layoutX="10.0"
+                   layoutY="40.0" text="Import / Export">
+                <font>
+                    <Font size="14.0"/>
+                </font>
+                <VBox.margin>
+                    <Insets top="15.0"/>
+                </VBox.margin>
+            </Label>
+            <Button layoutX="10.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity"
+                    mnemonicParsing="false" onAction="#importTuringProgram"
+                    text="Import program"/>
+            <Button layoutX="10.0" layoutY="150.0" minHeight="-Infinity"
+                    minWidth="-Infinity" mnemonicParsing="false"
+                    onAction="#exportTuringProgram" text="Export program"/>
+        </children>
+    </VBox>
+</HBox>

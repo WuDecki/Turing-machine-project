@@ -1,6 +1,5 @@
 package gui.controllers;
 
-import gui.StaticContext;
 import gui.animations.TuringAnimation;
 import gui.builders.TuringMachineProgramBuilder;
 import gui.components.Pommel;
@@ -10,19 +9,13 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
-import javafx.stage.FileChooser;
 import model.*;
 import model.controllers.TuringMachineController;
-import model.conversion.JsonFileManager;
-import model.conversion.JsonToProgramConverter;
-import model.conversion.ProgramToJsonConverter;
-import org.json.JSONObject;
 
-import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Queue;
@@ -32,11 +25,8 @@ import java.util.stream.Collectors;
 public class MainController extends AbstractController {
 
     @FXML
-    public TextField addSymbolInput;
-    @FXML
-    public ComboBox<Character> removeSymbolInput;
-    @FXML
-    public ComboBox<State> removeStateInput;
+    private ToolsAndOptionsController toolsAndOptionsController;
+
     @FXML
     public TuringGrid grid;
     @FXML
@@ -51,8 +41,6 @@ public class MainController extends AbstractController {
     public Pommel pommel;
     @FXML
     public Ribbon ribbon;
-    @FXML
-    public ChoiceBox<PommelStartPosition> pommelStartingPositionChoiceBox;
 
     private TuringMachineProgram program;
     private BooleanProperty isProgramRunning = new SimpleBooleanProperty(false);
@@ -63,27 +51,30 @@ public class MainController extends AbstractController {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        program = TuringMachineProgramBuilder.getDefaultProgram();
-//        program = TuringMachineProgramBuilder.prepareProgram();
-
-        initializeTuringGrid(program);
-        initializeProgramStartRestartButtons();
-
-        pommelStartingPositionChoiceBox.setItems(FXCollections.observableArrayList(PommelStartPosition.BEGINNING, PommelStartPosition.END));
-        pommelStartingPositionChoiceBox.setValue(PommelStartPosition.BEGINNING);
-        pommelStartingPositionChoiceBox.setOnAction(event -> pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue()));
-
-        initializeRibbonAndPommel(TuringMachineProgramBuilder.prepareTape("$$$$$"));
+        initToolsAndOptions();
+        initDefaults();
+        initializeDisablingOnProgramRun();
+        initializeRibbonAndPommel(TuringMachineProgramBuilder.convertToTapeCharacters("$$$$$"));
     }
 
-    private void initializeProgramStartRestartButtons() {
+    private void initToolsAndOptions() {
+        toolsAndOptionsController.setMainController(this);
+    }
+
+    private void initDefaults() {
+        initializeTuringProgramGrid(TuringMachineProgramBuilder.getDefaultProgram());
+    }
+
+    private void initializeDisablingOnProgramRun() {
         stepByStepCheckBox.disableProperty().bind(isProgramRunning);
         grid.disableProperty().bind(isProgramRunning);
         toolsAndOptions.disableProperty().bind(isProgramRunning);
     }
 
-    private void initializeTuringGrid(final TuringMachineProgram program) {
-        removeSymbolInput.setItems(
+    public void initializeTuringProgramGrid(final TuringMachineProgram program) {
+        this.program = program;
+
+        toolsAndOptionsController.removeSymbolInput.setItems(
                 FXCollections.observableList(
                         program.getSymbols().stream()
                                 .filter(character -> character != '$')
@@ -92,10 +83,10 @@ public class MainController extends AbstractController {
         );
 
         if (program.getSymbols().size() > 1) {
-            removeSymbolInput.setValue(program.getSymbols().get(1));
+            toolsAndOptionsController.removeSymbolInput.setValue(program.getSymbols().get(1));
         }
 
-        removeStateInput.setItems(
+        toolsAndOptionsController.removeStateInput.setItems(
                 FXCollections.observableList(
                         program.getStates().stream()
                                 .filter(state -> state.getType().equals(StateType.NORMAL))
@@ -104,11 +95,11 @@ public class MainController extends AbstractController {
         );
 
         if (program.getStates().size() > 2) {
-            removeStateInput.setValue(program.getStates().get(0));
+            toolsAndOptionsController.removeStateInput.setValue(program.getStates().get(0));
         }
 
         grid.initialize(program);
-        pommelStartingPositionChoiceBox.setValue(program.getStartPosition());
+        toolsAndOptionsController.pommelStartingPositionChoiceBox.setValue(program.getStartPosition());
     }
 
     @FXML
@@ -131,7 +122,7 @@ public class MainController extends AbstractController {
         turingMachineResponse = null;
         isProgramRunning.setValue(true);
 
-        pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
+        pommel.setPosition(ribbon, toolsAndOptionsController.getPommelStartingPosition());
 
         turingAnimation = new TuringAnimation(grid, pommel, ribbon, () -> {
             this.startProgramButton.setText("Start program");
@@ -195,82 +186,14 @@ public class MainController extends AbstractController {
         turingGridAnimationThread.start();
     }
 
-    private void initializeRibbonAndPommel(Character[] tape) {
+    public void initializeRibbonAndPommel(Character[] tape) {
+        this.tape = tape;
         ribbon.init(tape);
-        pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
+        pommel.setPosition(ribbon, toolsAndOptionsController.getPommelStartingPosition());
     }
 
     private void startProgramNextStep() {
         turingGridAnimationThread.interrupt();
-    }
-
-    @FXML
-    public void addState(final ActionEvent event) {
-        TuringMachineProgramBuilder.addNewState(program);
-        initializeTuringGrid(program);
-    }
-
-    @FXML
-    public void removeState(final ActionEvent event) {
-        final State toRemove = removeStateInput.getValue();
-
-        if (toRemove == null) {
-            showError("State need to be chosen!");
-
-            return;
-        }
-
-        try {
-            TuringMachineProgramBuilder.removeState(program, toRemove);
-            initializeTuringGrid(program);
-        } catch (final Exception ignored) {
-            showError("Sorry, state could not be removed!");
-        }
-    }
-
-    @FXML
-    public void addSymbol(final ActionEvent event) {
-        final String input = addSymbolInput.getText();
-
-        if (input == null || input.length() != 1) {
-            showError("Symbol need to be a single character!");
-
-            return;
-        }
-
-        if (!input.matches("[a-zA-Z]")) {
-            showError("Symbol need to be an alphabetical english character!");
-
-            return;
-        }
-
-        if (program.getSymbols().contains(input.charAt(0))) {
-            showError("Alphabet already contains that character!");
-
-            return;
-        }
-
-        TuringMachineProgramBuilder.addSymbol(program, input.charAt(0));
-        initializeTuringGrid(program);
-        addSymbolInput.clear();
-    }
-
-    @FXML
-    public void removeSymbol(final ActionEvent event) {
-        final Character symbol = removeSymbolInput.getValue();
-
-        if (symbol == null) {
-            showError("Symbol need to be chosen!");
-
-            return;
-        }
-
-        try {
-            TuringMachineProgramBuilder.removeSymbol(program, symbol);
-            initializeTuringGrid(program);
-        } catch (final Exception ignored) {
-            showError("Sorry, symbol could not be removed!");
-        }
     }
 
     @FXML
@@ -283,88 +206,12 @@ public class MainController extends AbstractController {
 
         startProgramButton.setDisable(false);
         grid.clearHighlights();
-        pommel.setPosition(ribbon, pommelStartingPositionChoiceBox.getValue());
+        pommel.setPosition(ribbon, toolsAndOptionsController.getPommelStartingPosition());
         isProgramRunning.setValue(false);
     }
 
-    @FXML
-    public void importTuringProgram() {
-        final FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Turing Machine Program File");
-        final File file = fileChooser.showOpenDialog(StaticContext.stage);
-
-        try {
-            if (file != null) {
-                final JSONObject jsonProgram = JsonFileManager.readJsonObject(file.getAbsolutePath());
-                program = new JsonToProgramConverter(jsonProgram).convert();
-                initializeTuringGrid(program);
-                showSuccess("Program successfully imported!");
-            }
-        } catch (Exception e) {
-            showError("Error during Turing machine program import!");
-        }
+    public TuringMachineProgram getProgram() {
+        return program;
     }
 
-    @FXML
-    public void exportTuringProgram() {
-        final FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Turing Machine Program File");
-        FileChooser.ExtensionFilter fileExtensions =
-                new FileChooser.ExtensionFilter("JSON", "*.json");
-
-        fileChooser.getExtensionFilters().add(fileExtensions);
-        final File file = fileChooser.showSaveDialog(StaticContext.stage);
-
-        try {
-            if (file != null) {
-                JsonFileManager.writeJsonObject(file.getAbsolutePath(), new ProgramToJsonConverter(program).convert());
-                showSuccess("Program successfully saved!");
-            }
-        } catch (Exception e) {
-            showError("Error during Turing machine program export!");
-        }
-    }
-
-    @FXML
-    public void clearProgram() {
-        program = TuringMachineProgramBuilder.getDefaultProgram();
-        initializeTuringGrid(program);
-        restartProgram();
-    }
-
-    private void showError(final String message) {
-        final Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setHeaderText("Error");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showSuccess(final String message) {
-        final Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText("Success");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    public void initializeType(ActionEvent event) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Tape Input Dialog");
-        dialog.setHeaderText("Provide tape characters");
-
-        dialog.showAndWait()
-                .ifPresent(characters -> {
-                    if (!characters.matches("[a-zA-Z$]*")) {
-                        showError("Symbol need to be an alphabetical english character! (Character \"$\" is acceptable)");
-                        return;
-                    }
-
-                    if (characters.isEmpty()) {
-                        showError("Tape can't be empty!");
-                        return;
-                    }
-
-                    tape = TuringMachineProgramBuilder.prepareTape(characters);
-                    initializeRibbonAndPommel(tape);
-                });
-    }
 }
