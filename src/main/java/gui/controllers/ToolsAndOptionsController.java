@@ -38,12 +38,16 @@ public class ToolsAndOptionsController extends AbstractController implements Ini
                 FXCollections.observableArrayList(PommelStartPosition.BEGINNING, PommelStartPosition.END)
         );
         pommelStartingPositionChoiceBox.setValue(PommelStartPosition.BEGINNING);
-        pommelStartingPositionChoiceBox.setOnAction(
-                event -> mainController.pommel.setPosition(
-                        mainController.ribbon, pommelStartingPositionChoiceBox.getValue()
-                )
-        );
+        pommelStartingPositionChoiceBox.setOnAction(event -> onPommelStartingPositionChange());
+    }
 
+    private void onPommelStartingPositionChange() {
+        final PommelStartPosition position = pommelStartingPositionChoiceBox.getValue();
+
+        mainController.pommel.setPosition(
+                mainController.ribbon, position
+        );
+        mainController.getProgram().setStartPosition(position);
     }
 
     @FXML

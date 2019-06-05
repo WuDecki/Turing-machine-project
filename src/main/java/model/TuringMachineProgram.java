@@ -8,7 +8,7 @@ public class TuringMachineProgram {
     private final Character movementCharacter;
     private List<State> states;
     private State firstState;
-    private final PommelStartPosition startPosition;
+    private PommelStartPosition startPosition;
 
     public TuringMachineProgram(final List<Character> symbols, final Character movementCharacter, final List<State> states, final State firstState, final PommelStartPosition startPosition) {
         this.symbols = symbols;
@@ -44,5 +44,9 @@ public class TuringMachineProgram {
 
     public PommelStartPosition getStartPosition() {
         return startPosition;
+    }
+
+    public void setStartPosition(PommelStartPosition startPosition) {
+        this.startPosition = startPosition;
     }
 }

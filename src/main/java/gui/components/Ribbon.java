@@ -9,19 +9,25 @@ import java.util.stream.Collectors;
 
 public class Ribbon extends HBox {
 
+    private int size;
+    private List<Label> labels;
+
     public void init(Character[] tape) {
-        List<Label> ribbonLabels = Arrays.stream(tape)
+        labels = Arrays.stream(tape)
                 .map(character -> new Label(character.toString()))
                 .collect(Collectors.toList());
 
 
-        getChildren().setAll(ribbonLabels);
+        getChildren().setAll(labels);
+        size = labels.size();
 
         applyCss();
         layout();
     }
 
     public void setCharacter(int position, Character newChar) {
-        ((Label) getChildren().get(position)).setText(newChar.toString());
+        if (position < size && position >= 0) {
+            labels.get(position).setText(newChar.toString());
+        }
     }
 }
