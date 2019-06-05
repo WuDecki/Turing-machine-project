@@ -160,7 +160,7 @@ public class ToolsAndOptionsController extends AbstractController implements Ini
     public void importTuringProgram() {
         final FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Turing Machine Program File");
-        final File file = fileChooser.showOpenDialog(StaticContext.stage);
+        final File file = fileChooser.showOpenDialog(StaticContext.STAGE);
 
         try {
             if (file != null) {
@@ -182,7 +182,7 @@ public class ToolsAndOptionsController extends AbstractController implements Ini
                 new FileChooser.ExtensionFilter("JSON", "*.json");
 
         fileChooser.getExtensionFilters().add(fileExtensions);
-        final File file = fileChooser.showSaveDialog(StaticContext.stage);
+        final File file = fileChooser.showSaveDialog(StaticContext.STAGE);
 
         try {
             if (file != null) {

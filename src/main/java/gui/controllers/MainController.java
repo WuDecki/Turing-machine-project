@@ -1,10 +1,12 @@
 package gui.controllers;
 
+import gui.StaticContext;
 import gui.animations.TuringAnimation;
 import gui.builders.TuringMachineProgramBuilder;
 import gui.components.Pommel;
 import gui.components.Ribbon;
 import gui.components.TuringGrid;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -48,6 +50,7 @@ public class MainController extends AbstractController {
     private BooleanProperty isProgramRunning = new SimpleBooleanProperty(false);
     private Thread turingAnimationThread;
     private Task<TuringMachineResponse> turingAnimationTask;
+    private TuringAnimation turingAnimation;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -55,6 +58,13 @@ public class MainController extends AbstractController {
         initDefaults();
         initializeDisablingOnProgramRun();
         initializeRibbonAndPommel(TuringMachineProgramBuilder.convertToTapeCharacters("$$$$$"));
+
+        StaticContext.STAGE.setOnCloseRequest(event -> {
+            if (turingAnimationTask != null && turingAnimationThread.isAlive()) {
+                turingAnimation.getController().setRestart(true);
+                turingAnimationTask.cancel(true);
+            }
+        });
     }
 
     private void initToolsAndOptions() {
@@ -119,10 +129,15 @@ public class MainController extends AbstractController {
             return;
         }
 
+        grid.clearHighlights();
+        long sleep = 1000;
+        boolean isStepByStep = false;
+
         if (stepByStepCheckBox.isSelected()) {
             startProgramButton.setText("Next step");
-//            turingAnimationTask.setTimeoutSeconds(1024);
             startProgramButton.setOnAction(event -> this.startProgramNextStep());
+            sleep = 60000;
+            isStepByStep = true;
         } else {
             startProgramButton.setDisable(true);
         }
@@ -130,8 +145,8 @@ public class MainController extends AbstractController {
         isProgramRunning.setValue(true);
         pommel.setPosition(ribbon, program.getStartPosition());
 
-        turingAnimationTask = TuringAnimation
-                .getTuringAnimation(program, tape, grid, pommel, ribbon, 1000);
+        turingAnimation = TuringAnimation.getInstance(program, tape, grid, pommel, ribbon, sleep, isStepByStep);
+        turingAnimationTask = turingAnimation.getTuringAnimationTask();
 
         turingAnimationTask.setOnSucceeded(event -> {
             showSuccess(String.format("The results of the program ended with an  %s state!", turingAnimationTask.getValue()));
@@ -152,11 +167,13 @@ public class MainController extends AbstractController {
     }
 
     private void enableButtons() {
-        startProgramButton.setText("Start program");
-        startProgramButton.setOnAction(event -> this.startProgram());
-        startProgramButton.setDisable(false);
-        restartProgramButton.setDisable(false);
-        isProgramRunning.setValue(false);
+        Platform.runLater(() -> {
+            startProgramButton.setText("Start program");
+            startProgramButton.setOnAction(event -> this.startProgram());
+            startProgramButton.setDisable(false);
+            restartProgramButton.setDisable(false);
+            isProgramRunning.setValue(false);
+        });
     }
 
     public void initializeRibbonAndPommel(Character[] tape) {
@@ -175,6 +192,7 @@ public class MainController extends AbstractController {
 
         CompletableFuture.runAsync(() -> {
             if (turingAnimationTask != null && turingAnimationThread.isAlive()) {
+                turingAnimation.getController().setRestart(true);
                 turingAnimationTask.cancel(true);
             }
 

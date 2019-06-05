@@ -23,7 +23,7 @@ public class MainApp extends Application {
         configurePrimaryStageAndRoot(primaryStage, root);
         applyTheme(root);
 
-        StaticContext.stage = primaryStage;
+        StaticContext.STAGE = primaryStage;
         primaryStage.show();
     }
 
