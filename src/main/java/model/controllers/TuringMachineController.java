@@ -5,8 +5,9 @@ import model.State;
 
 public interface TuringMachineController {
 
-    void onMakeDecision(State actualState, Character actualCharacter);
-    void onChangeState(State actualState, State nextState);
+    void onMakeDecision(State actualState, Character actualCharacter) throws InterruptedException;
 
-    void onProcessOperation(Operation operation);
+    void onChangeState(State actualState, State nextState) throws InterruptedException;
+
+    void onProcessOperation(Operation operation) throws InterruptedException;
 }

@@ -6,149 +6,89 @@ import gui.components.TuringGrid;
 import gui.components.TuringGridCell;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import model.Operation;
+import model.*;
+import model.controllers.TuringMachineController;
 
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
 
-public class TuringAnimation extends Task<Void> {
+public class TuringAnimation {
 
-    private final Queue<MakeDecision> onMakeDecisionQueue;
-    private final Queue<ChangeState> onChangeStateQueue;
-    private final Queue<Operation> onProcessOperationQueue;
-    private final TuringGrid grid;
-    private final Pommel pommel;
-    private final Ribbon ribbon;
-    private final Runnable afterFinish;
-    private boolean running;
-    private long timeoutSeconds = 1;
-
-    public TuringAnimation(TuringGrid grid, Pommel pommel, Ribbon ribbon, Runnable afterFinish) {
-        this.grid = grid;
-        this.pommel = pommel;
-        this.ribbon = ribbon;
-        this.running = false;
-        this.afterFinish = afterFinish;
-        onMakeDecisionQueue = new ConcurrentLinkedQueue<>();
-        onChangeStateQueue = new ConcurrentLinkedQueue<>();
-        onProcessOperationQueue = new ConcurrentLinkedQueue<>();
+    private TuringAnimation() {
     }
 
-    @Override
-    protected Void call() throws Exception {
-        TuringGridCell cell;
-        List<TuringGridCell> stateColumn;
-        List<TuringGridCell> characterRow;
-        running = true;
+    public static Task<TuringMachineResponse> getTuringAnimation(
+            final TuringMachineProgram program, final Character[] tape, final TuringGrid grid,
+            final gui.components.Pommel pommel, final Ribbon ribbon, final long sleep) {
+        final DefaultTuringMachineController controller = new DefaultTuringMachineController(grid, pommel, ribbon, sleep);
+        final TuringMachine machine = new TuringMachine(controller);
 
-        while (running && !Thread.interrupted() && (onMakeDecisionQueue.size() > 0 || onChangeStateQueue.size() > 0 || onProcessOperationQueue.size() > 0)) {
-            synchronized (this) {
-                MakeDecision decision = onMakeDecisionQueue.poll();
-                if (decision != null) {
-                    stateColumn = grid.getStateColumn(decision.actualState);
-                    characterRow = grid.getCharacterRow(decision.actualCharacter);
-                    cell = grid.getCell(decision.actualState, decision.actualCharacter);
+        machine.loadProgram(program);
 
-                    grid.addStateHighlight(stateColumn);
-
-                    sleep();
-
-                    grid.addCharacterHighlight(characterRow);
-                    grid.addCellHighlight(cell);
-
-                    sleep();
-
-                    grid.removeStateHighlight(stateColumn);
-                    grid.removeCharacterHighlight(characterRow);
-                    grid.removeCellHighlight(cell);
-                }
-
-                ChangeState stateChange = onChangeStateQueue.poll();
-                if (stateChange != null) {
-                    stateColumn = grid.getStateColumn(stateChange.nextState);
-
-                    grid.addStateHighlight(stateColumn);
-
-                    sleep();
-
-                    grid.removeStateHighlight(stateColumn);
-                }
-
-                Operation operation = onProcessOperationQueue.poll();
-                if (operation != null) {
-                    Platform.runLater(() -> ribbon.setCharacter(pommel.getActualPosition(), operation.getNewChar()));
-
-                    sleep();
-                    pommel.move(ribbon, operation.getMovement());
-                }
-
-                if (!running) {
-                    grid.clearHighlights();
-                }
+        return new Task<TuringMachineResponse>() {
+            @Override
+            protected TuringMachineResponse call() throws Exception {
+                return machine.startProgram(tape);
             }
+        };
+    }
+
+    static class DefaultTuringMachineController implements TuringMachineController {
+        private final long sleep;
+        private final TuringGrid grid;
+        private final Pommel pommel;
+        private final Ribbon ribbon;
+
+        DefaultTuringMachineController(final TuringGrid grid, final gui.components.Pommel pommel, final Ribbon ribbon, final long sleep) {
+            this.grid = grid;
+            this.pommel = pommel;
+            this.ribbon = ribbon;
+            this.sleep = sleep;
         }
 
-        running = false;
+        @Override
+        public void onMakeDecision(State actualState, Character actualCharacter) throws InterruptedException {
+            System.out.println(String.format("onMakeDecision %s %c", actualState, actualCharacter));
 
-        this.afterFinish.run();
+            final List<TuringGridCell> stateColumn = grid.getStateColumn(actualState);
+            final List<TuringGridCell> characterRow = grid.getCharacterRow(actualCharacter);
+            final TuringGridCell cell = grid.getCell(actualState, actualCharacter);
 
-        return null;
-    }
+            grid.addStateHighlight(stateColumn);
 
-    private void sleep() {
-        try {
-            TimeUnit.SECONDS.sleep(timeoutSeconds);
-        } catch (InterruptedException ignored) {
+            Thread.sleep(sleep);
+
+            grid.addCharacterHighlight(characterRow);
+            grid.addCellHighlight(cell);
+
+            Thread.sleep(sleep);
+
+            grid.removeStateHighlight(stateColumn);
+            grid.removeCharacterHighlight(characterRow);
+            grid.removeCellHighlight(cell);
         }
-    }
 
-    public boolean isTaskRunning() {
-        return running;
-    }
+        @Override
+        public void onChangeState(State actualState, State nextState) throws InterruptedException {
+            System.out.println(String.format("onChangeState %s %s", actualState, nextState));
 
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
+            final List<TuringGridCell> stateColumn = grid.getStateColumn(nextState);
 
-    public TuringGrid getGrid() {
-        return grid;
-    }
+            grid.addStateHighlight(stateColumn);
 
-    public void setTimeoutSeconds(long timeoutSeconds) {
-        this.timeoutSeconds = timeoutSeconds;
-    }
+            Thread.sleep(sleep);
 
-    public Queue<MakeDecision> getOnMakeDecisionQueue() {
-        return onMakeDecisionQueue;
-    }
-
-    public Queue<ChangeState> getOnChangeStateQueue() {
-        return onChangeStateQueue;
-    }
-
-    public Queue<Operation> getOnProcessOperationQueue() {
-        return onProcessOperationQueue;
-    }
-
-    public static class MakeDecision {
-        final model.State actualState;
-        final Character actualCharacter;
-
-        public MakeDecision(final model.State actualState, final Character actualCharacter) {
-            this.actualState = actualState;
-            this.actualCharacter = actualCharacter;
+            grid.removeStateHighlight(stateColumn);
         }
-    }
 
-    public static class ChangeState {
-        final model.State actualState;
-        final model.State nextState;
+        @Override
+        public void onProcessOperation(Operation operation) throws InterruptedException {
+            System.out.println(String.format("onProcessOperation %s %s", operation.getNewChar(), operation.getMovement()));
+//
+            Platform.runLater(() -> ribbon.setCharacter(pommel.getActualPosition(), operation.getNewChar()));
 
-        public ChangeState(final model.State actualState, final model.State nextState) {
-            this.actualState = actualState;
-            this.nextState = nextState;
+            Thread.sleep(sleep);
+
+            pommel.move(ribbon, operation.getMovement());
         }
     }
 }

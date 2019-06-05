@@ -19,7 +19,7 @@ public class TuringMachine {
         this.actualState = null;
     }
 
-    public TuringMachineResponse startProgram(Character[] tape) throws TuringMachineException {
+    public TuringMachineResponse startProgram(Character[] tape) throws TuringMachineException, InterruptedException {
         checkTapeSymbols(tape);
         ribbon = new Ribbon(tape);
         configurePommel();
@@ -55,7 +55,7 @@ public class TuringMachine {
         return -1;
     }
 
-    private TuringMachineResponse executeActualState() throws TuringMachineException {
+    private TuringMachineResponse executeActualState() throws TuringMachineException, InterruptedException {
         StateType actualStateType = getActualStateType();
 
         if (actualStateType == StateType.ACCEPTABLE) {
@@ -76,7 +76,7 @@ public class TuringMachine {
         return actualState.getType();
     }
 
-    private State processOperation(Operation operation) {
+    private State processOperation(Operation operation) throws InterruptedException {
         pommel.writeCharacter(ribbon, operation.getNewChar());
         pommel.move(operation.getMovement());
         controller.onProcessOperation(operation);
