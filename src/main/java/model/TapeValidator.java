@@ -13,7 +13,7 @@ public class TapeValidator {
     }
 
     public boolean isValid() {
-        return symbolsAreCorrect() && isLastSymbolCorrect();
+        return symbolsAreCorrect();
     }
 
     private boolean symbolsAreCorrect() {
@@ -35,11 +35,5 @@ public class TapeValidator {
         }
 
         return false;
-    }
-
-    private boolean isLastSymbolCorrect() {
-        Character movementCharacter = program.getMovementCharacter();
-
-        return tape[tape.length - 1].equals(movementCharacter);
     }
 }

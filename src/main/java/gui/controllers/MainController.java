@@ -140,7 +140,7 @@ public class MainController extends AbstractController {
             this.restartProgramButton.setDisable(false);
             this.isProgramRunning.setValue(false);
             if (this.turingMachineResponse != null) {
-                Platform.runLater(() -> showSuccess(String.format("The results of the program ended with an %s state!", turingMachineResponse.toString())));
+                Platform.runLater(() -> showSuccess(String.format("The results of the program ended with an  %s state!", turingMachineResponse.toString())));
             }
         });
 
@@ -325,6 +325,13 @@ public class MainController extends AbstractController {
         }
     }
 
+    @FXML
+    public void clearProgram() {
+        program = TuringMachineProgramBuilder.getDefaultProgram();
+        initializeTuringGrid(program);
+        restartProgram();
+    }
+
     private void showError(final String message) {
         final Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText("Error");
@@ -354,15 +361,6 @@ public class MainController extends AbstractController {
                     if (characters.isEmpty()) {
                         showError("Tape can't be empty!");
                         return;
-                    }
-
-                    final Character movementCharacter = program.getMovementCharacter();
-//                    if (characters.charAt(0) != movementCharacter) {
-//                        characters = movementCharacter + characters;
-//                    }
-
-                    if (characters.charAt(characters.length() - 1) != movementCharacter) {
-                        characters = characters + movementCharacter;
                     }
 
                     tape = TuringMachineProgramBuilder.prepareTape(characters);
