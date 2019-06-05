@@ -22,6 +22,7 @@ import model.TuringMachineResponse;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class MainController extends AbstractController {
@@ -135,8 +136,19 @@ public class MainController extends AbstractController {
 
         if (stepByStepCheckBox.isSelected()) {
             startProgramButton.setText("Next step");
-            startProgramButton.setOnAction(event -> this.startProgramNextStep());
-            sleep = 60000;
+            startProgramButton.setOnAction(event -> {
+                startProgramButton.setDisable(true);
+                this.startProgramNextStep();
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(500);
+                    } catch (InterruptedException ignored) {
+                    } finally {
+                        startProgramButton.setDisable(false);
+                    }
+                });
+            });
+            sleep = 360000;
             isStepByStep = true;
         } else {
             startProgramButton.setDisable(true);

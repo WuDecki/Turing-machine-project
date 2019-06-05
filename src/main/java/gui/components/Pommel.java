@@ -60,7 +60,7 @@ public class Pommel extends Polygon {
 
     private TranslateTransition getTransition() {
         final TranslateTransition transition = new TranslateTransition();
-        transition.setDuration(Duration.seconds(1));
+        transition.setDuration(Duration.millis(500));
         transition.setNode(this);
 
         return transition;
