@@ -66,8 +66,11 @@ public class TuringMachine {
             Character actualCharacter = pommel.readCharacter(ribbon);
             controller.onMakeDecision(actualState, actualCharacter);
             Operation operation = actualState.getOperation(actualCharacter);
-            controller.onChangeState(actualState, operation.getNextState());
+
+            final State previousState = actualState;
             actualState = processOperation(operation);
+
+            controller.onChangeState(previousState, actualCharacter, operation.getNextState());
             return executeActualState();
         }
     }

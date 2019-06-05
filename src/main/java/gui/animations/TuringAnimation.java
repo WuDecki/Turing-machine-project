@@ -78,31 +78,31 @@ public class TuringAnimation {
 
             sleep();
 
-
             grid.addCharacterHighlight(characterRow);
             grid.addCellHighlight(cell);
 
             sleep();
-
-            grid.removeStateHighlight(stateColumn);
-            grid.removeCharacterHighlight(characterRow);
-            grid.removeCellHighlight(cell);
         }
 
         @Override
-        public void onChangeState(State actualState, State nextState) throws InterruptedException {
+        public void onChangeState(State actualState, Character actualCharacter, State nextState) throws InterruptedException {
             if (Thread.currentThread().isInterrupted())
                 return;
 
-            System.out.println(String.format("onChangeState %s %s", actualState, nextState));
+            System.out.println(String.format("onChangeState %s %s %s", actualState, actualCharacter, nextState));
 
-            final List<TuringGridCell> stateColumn = grid.getStateColumn(nextState);
+            final List<TuringGridCell> nextStateColumn = grid.getStateColumn(nextState);
+            final List<TuringGridCell> stateColumn = grid.getStateColumn(actualState);
+            final List<TuringGridCell> characterRow = grid.getCharacterRow(actualCharacter);
+            final TuringGridCell cell = grid.getCell(actualState, actualCharacter);
 
-            grid.addStateHighlight(stateColumn);
+            Platform.runLater(() -> {
+                grid.removeStateHighlight(stateColumn);
+                grid.removeCharacterHighlight(characterRow);
+                grid.removeCellHighlight(cell);
 
-            sleep();
-
-            grid.removeStateHighlight(stateColumn);
+                grid.addStateHighlight(nextStateColumn);
+            });
         }
 
         @Override
@@ -117,6 +117,8 @@ public class TuringAnimation {
             sleep();
 
             pommel.move(ribbon, operation.getMovement());
+
+            sleep();
         }
 
         private void sleep() throws InterruptedException {

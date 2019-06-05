@@ -19,11 +19,11 @@ public class MainApp extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
+        StaticContext.STAGE = primaryStage;
         final Parent root = FXMLLoader.load(MainApp.class.getResource(Config.Views.MAIN));
         configurePrimaryStageAndRoot(primaryStage, root);
         applyTheme(root);
 
-        StaticContext.STAGE = primaryStage;
         primaryStage.show();
     }
 

@@ -104,11 +104,11 @@ public class TuringGrid extends GridPane {
         return null;
     }
 
-    public void addStateHighlight(final List<TuringGridCell> cells) {
+    synchronized public void addStateHighlight(final List<TuringGridCell> cells) {
         addHighlight(cells, HIGHLIGHT_STATE_CLASS);
     }
 
-    public void removeStateHighlight(final List<TuringGridCell> cells) {
+    synchronized public void removeStateHighlight(final List<TuringGridCell> cells) {
         removeHighlight(cells, HIGHLIGHT_STATE_CLASS);
     }
 
@@ -116,19 +116,21 @@ public class TuringGrid extends GridPane {
         addHighlight(cells, HIGHLIGHT_CHARACTER_CLASS);
     }
 
-    public void removeCharacterHighlight(final List<TuringGridCell> cells) {
+    synchronized public void removeCharacterHighlight(final List<TuringGridCell> cells) {
         removeHighlight(cells, HIGHLIGHT_CHARACTER_CLASS);
     }
 
     synchronized private void addHighlight(final List<TuringGridCell> cells, String styleClass) {
         cells.stream()
                 .map(TuringGridCell::getStyleClass)
+                .filter(strings -> !strings.contains(styleClass))
                 .forEach(styles -> styles.add(styleClass));
     }
 
     synchronized private void removeHighlight(final List<TuringGridCell> cells, String styleClass) {
         cells.stream()
                 .map(TuringGridCell::getStyleClass)
+                .filter(strings -> strings.contains(styleClass))
                 .forEach(styles -> styles.remove(styleClass));
     }
 
